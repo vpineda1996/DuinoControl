@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="available_protocols">
+        <item name="http">http</item>
+        <item name="https">https</item>
+    </string-array>
+
+    <string-array name="available_protocols_values">
+        <item name="http">http://</item>
+        <item name="https">https://</item>
+    </string-array>
+</resources>
