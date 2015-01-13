@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="RedActionBarTheme" parent="Theme.AppCompat.Light">
+        <item name="android:colorPrimaryDark">@android:color/holo_blue_dark</item>
+        <item name="android:actionBarStyle">@style/RedActionBar</item>
+
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/RedActionBar</item>
+    </style>
+</resources>

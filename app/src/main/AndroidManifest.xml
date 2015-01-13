@@ -12,6 +12,7 @@
         android:label="@string/app_name" >
         <activity
             android:name="com.vpineda.duinocontrol.app.MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,6 +23,7 @@
 
         <activity android:name=".settings.MainPreferences"
                   android:label="Settings"
+                  android:theme="@style/RedActionBarTheme"
                   />
     </application>
 

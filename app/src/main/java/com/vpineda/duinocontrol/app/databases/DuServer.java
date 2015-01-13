@@ -8,9 +8,11 @@ import java.util.UUID;
 public class DuServer {
 
     private UUID serverID;
-    private String serverName, protocol, host, port, path;
+    private String serverName, host, path;
+    private int protocol, port;
+    public String[] protocolNames = {"http://","https://"};
 
-    public DuServer(UUID id, String nameInput, String protocolInput, String hostInput, String portInput, String pathInput){
+    public DuServer(UUID id, String nameInput, int protocolInput, String hostInput, int portInput, String pathInput){
         this.serverID = id;
         this.serverName = nameInput;
         this.protocol = protocolInput;
@@ -19,7 +21,7 @@ public class DuServer {
         this.path = pathInput;
     }
 
-    public DuServer(String nameInput, String protocolInput, String hostInput, String portInput, String pathInput){
+    public DuServer(String nameInput, int protocolInput, String hostInput, int portInput, String pathInput){
         this(UUID.randomUUID(), nameInput, protocolInput, hostInput, portInput, pathInput);
     }
 
@@ -32,7 +34,7 @@ public class DuServer {
         this.serverName = name;
     }
 
-    public void setProtocol(String protocol) {
+    public void setProtocol(int protocol) {
         this.protocol = protocol;
     }
 
@@ -40,7 +42,7 @@ public class DuServer {
         this.host = host;
     }
 
-    public void setPort(String port) {
+    public void setPort(int port) {
         this.port = port;
     }
 
@@ -57,7 +59,7 @@ public class DuServer {
         return serverName;
     }
 
-    public String getProtocol() {
+    public int getProtocol() {
         return protocol;
     }
 
@@ -65,7 +67,7 @@ public class DuServer {
         return host;
     }
 
-    public String getPort() {
+    public int getPort() {
         return port;
     }
 

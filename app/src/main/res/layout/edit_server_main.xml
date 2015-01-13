@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/background_light">
+                android:layout_height="match_parent">
 
 
     <EditText
@@ -16,7 +15,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="6dp"
-            style="@style/EditTextAppTheme"/>
+            style="@style/EditTextBlueUnderline"/>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -28,13 +27,12 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="6dp"
             android:id="@+id/linearLayout">
-        <EditText
+        <Spinner
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="4"
-                android:id="@+id/server_protocol_editText"
-                android:hint="Protocol"
-                style="@style/EditTextAppTheme"/>
+                android:id="@+id/server_protocol_spinner"
+                android:hint="Protocol"/>
 
 
         <EditText
@@ -43,14 +41,54 @@
                 android:layout_weight="10"
                 android:id="@+id/server_hostname_editText"
                 android:hint="Hostname or IP"
-                style="@style/EditTextAppTheme"/>
+                style="@style/EditTextBlueUnderline"
+                android:inputType="textWebEditText"/>
     </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_alignParentBottom="false"
+                android:layout_below="@+id/linearLayout"
+                android:id="@+id/linearLayout2"
+                android:layout_marginBottom="6dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="6dp">
+
+                <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/server_path_editText"
+                        android:hint="Path (ex. /post)"
+                        android:lines="1"
+                        android:layout_weight="2"
+                        style="@style/EditTextBlueUnderline"/>
+
+                <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/server_port_editText"
+                        android:inputType="number"
+                        style="@style/EditTextBlueUnderline"
+                        android:hint="Port"
+                        android:layout_weight="1"/>
+
+        </LinearLayout>
 
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Button"
+            android:text="Save"
             android:id="@+id/button"
-            android:layout_below="@+id/linearLayout"
-            android:layout_centerHorizontal="true"/>
+            android:layout_below="@+id/linearLayout2"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="6dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="6dp"/>
 </RelativeLayout>

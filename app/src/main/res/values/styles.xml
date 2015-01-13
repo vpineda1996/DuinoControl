@@ -1,13 +1,32 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
-    <style name="EditTextAppTheme" parent="android:Widget.EditText">
+    <style name="EditTextBlueUnderline" parent="Widget.AppCompat.EditText">
         <item name="android:background">@drawable/apptheme_edit_text_holo_light</item>
+        <item name="android:textAppearance">@style/EditTextBlueUnderlineText</item>
+    </style>
+
+    <style name="EditTextBlueUnderlineText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">#ff000000</item>
         <item name="android:textColorHint">#aaa</item>
+    </style>
+
+    <style name="RedActionBarTheme"
+           parent="@style/Theme.AppCompat.Light">
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/RedActionBar</item>
+    </style>
+
+    <style name="RedActionBar"
+           parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <!-- Support library compatibility -->
+        <item name="titleTextStyle">@style/RedActionBarText</item>
+        <item name="background">@android:color/holo_blue_light</item>
+
+    </style>
+
+    <style name="RedActionBarText"
+           parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
 </resources>

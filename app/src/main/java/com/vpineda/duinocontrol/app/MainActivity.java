@@ -1,6 +1,5 @@
 package com.vpineda.duinocontrol.app;
 
-import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,17 +7,19 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import com.vpineda.duinocontrol.app.settings.MainPreferences;
-import com.vpineda.duinocontrol.app.settings.ServerFragmentWithDB;
+import com.vpineda.duinocontrol.app.settings.ServerFragment;
 
 
-public class MainActivity extends Activity implements PlanetAdapter.OnItemClickListener {
+public class MainActivity extends ActionBarActivity implements PlanetAdapter.OnItemClickListener {
 
     private DrawerLayout mDrawerLayout;
     private RecyclerView mDrawerList;
@@ -38,6 +39,10 @@ public class MainActivity extends Activity implements PlanetAdapter.OnItemClickL
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+        }
 
         mTitle = mDrawerTitle = getTitle();
 
@@ -56,8 +61,8 @@ public class MainActivity extends Activity implements PlanetAdapter.OnItemClickL
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
@@ -68,12 +73,12 @@ public class MainActivity extends Activity implements PlanetAdapter.OnItemClickL
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
             public void onDrawerClosed(View view) {
-                getActionBar().setTitle(mTitle);
+                getSupportActionBar().setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             public void onDrawerOpened(View drawerView) {
-                getActionBar().setTitle(mDrawerTitle);
+                getSupportActionBar().setTitle(mDrawerTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -133,13 +138,22 @@ public class MainActivity extends Activity implements PlanetAdapter.OnItemClickL
     @Override
     public void setTitle(CharSequence title) {
         mTitle = title;
-        getActionBar().setTitle(mTitle);
+        getSupportActionBar().setTitle(mTitle);
+    }
+
+    /* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        menu.findItem(R.id.refresh_button).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     private void selectItem(int position) {
         // update the main content by replacing fragments
-        ServerFragmentWithDB fragment = new ServerFragmentWithDB();
-        getFragmentManager().beginTransaction()
+        ServerFragment fragment = new ServerFragment();
+        getSupportFragmentManager().beginTransaction()
                 .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.content_frame, fragment)
                 .commit();
