@@ -1,33 +1,24 @@
 package com.vpineda.duinocontrol.app;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment;
+import com.vpineda.duinocontrol.app.settings.EditServerFragment;
 import com.vpineda.duinocontrol.app.settings.MainPreferences;
-import com.vpineda.duinocontrol.app.settings.ServerFragment;
 
 
-public class MainActivity extends ActionBarActivity implements PlanetAdapter.OnItemClickListener {
+public class MainActivity extends ActionBarActivity {
 
     private DrawerLayout mDrawerLayout;
-    private RecyclerView mDrawerList;
-    private ActionBarDrawerToggle mDrawerToggle;
-
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
-    private String[] mPlanetTitles;
+    private NavigationalDrawerFragment mDrawer;
+    private Toolbar mToolbar;
 
 
     // =====================================
@@ -36,58 +27,14 @@ public class MainActivity extends ActionBarActivity implements PlanetAdapter.OnI
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigation_drawer);
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (mToolbar != null) {
-            setSupportActionBar(mToolbar);
-        }
-
-        mTitle = mDrawerTitle = getTitle();
-
-        mPlanetTitles = getResources().getStringArray(R.array.available_protocols);
+        setToolbar();
         mDrawerLayout = (DrawerLayout) findViewById (R.id.drawer_layout);
-        mDrawerList = (RecyclerView) findViewById(R.id.left_drawer);
-
-        // set a custom shadow that overlays the main content when the drawer opens
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        // improve performance by indicating the list if fixed size.
-        mDrawerList.setHasFixedSize(true);
-        mDrawerList.setLayoutManager(new LinearLayoutManager(this));
-
-        mDrawerList.setAdapter(new PlanetAdapter(mPlanetTitles, this));
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        // enable ActionBar app icon to behave as action to toggle nav drawer
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        // ActionBarDrawerToggle ties together the the proper interactions
-        // between the sliding drawer and the action bar app icon
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                R.string.drawer_open,  /* "open drawer" description for accessibility */
-                R.string.drawer_close  /* "close drawer" description for accessibility */
-        ) {
-            public void onDrawerClosed(View view) {
-                getSupportActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                getSupportActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-        if (savedInstanceState == null) {
-            selectItem(0);
+        mDrawer = (NavigationalDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
+        mDrawer.setUp(((DrawerLayout) findViewById(R.id.drawer_layout)), mToolbar);
+        if(savedInstanceState == null){
+            mDrawer.selectItem(0);
         }
-
     }
 
 
@@ -112,55 +59,33 @@ public class MainActivity extends ActionBarActivity implements PlanetAdapter.OnI
             startActivity(intent);
             return true;
         }
-
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    /* The click listener for RecyclerView in the navigation drawer */
-    @Override
-    public void onClick(View view, int position) {
-        selectItem(position);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
-    }
-
-
-    @Override
-    public void setTitle(CharSequence title) {
-        mTitle = title;
-        getSupportActionBar().setTitle(mTitle);
     }
 
     /* Called whenever we call invalidateOptionsMenu() */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer.getView());
         menu.findItem(R.id.refresh_button).setVisible(!drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private void selectItem(int position) {
-        // update the main content by replacing fragments
-        ServerFragment fragment = new ServerFragment();
-        getSupportFragmentManager().beginTransaction()
-                .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(R.id.content_frame, fragment)
-                .commit();
 
-        // update selected item title, then close the drawer
-        setTitle(mPlanetTitles[position]);
-        mDrawerLayout.closeDrawer(mDrawerList);
+    private void setToolbar() {
+        setContentView(R.layout.activity_navigation_drawer);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mToolbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.holo_blue_dark)));
+        }
     }
 
+    public void onButtonDrawerAdd(View view) {
+        getSupportFragmentManager().beginTransaction()
+                .addToBackStack("add_room")
+                .replace(android.R.id.content, new EditServerFragment())
+                .commit();
+    }
 }

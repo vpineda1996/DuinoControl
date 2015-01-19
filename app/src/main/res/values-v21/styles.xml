@@ -7,4 +7,10 @@
         <!-- Support library compatibility -->
         <item name="actionBarStyle">@style/RedActionBar</item>
     </style>
+
+    <style name="TransparentStatusBarTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+    </style>
 </resources>

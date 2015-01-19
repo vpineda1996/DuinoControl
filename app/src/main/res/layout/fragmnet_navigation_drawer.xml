@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:id="@+id/fragment_drawer_main_layout"
+              android:background="@android:color/white"
+              android:layout_height="match_parent">
+
+
+    <RelativeLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/drawer_upper_part_height"
+            android:background="@android:color/holo_orange_light"
+            android:id="@+id/upper_part_drawer">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="New Text"
+                android:gravity="bottom|center"
+                android:textColor="@android:color/white"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/textView"
+                android:layout_marginBottom="20dp"/>
+
+        <Button
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_margin="12dp"
+                android:id="@+id/add_room_icon"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/ic_action_new"
+                android:onClick="onButtonDrawerAdd"/>
+
+    </RelativeLayout>
+    <android.support.v7.widget.RecyclerView
+            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:id="@+id/drawer_recycler_view"
+            android:layout_below="@+id/upper_part_drawer">
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>

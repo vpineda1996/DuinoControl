@@ -1,10 +1,11 @@
-package com.vpineda.duinocontrol.app;
+package com.vpineda.duinocontrol.app.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.vpineda.duinocontrol.app.R;
 
 /**
  * Created by vpineda1996 on 2015-01-08.
@@ -55,6 +56,7 @@ public class PlanetAdapter extends RecyclerView.Adapter<PlanetAdapter.ViewHolder
                 mListener.onClick(view, position);
             }
         });
+
     }
 
     @Override
