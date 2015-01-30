@@ -10,9 +10,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
+import android.widget.Toast;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.adapters.DrawerAdapter;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
@@ -23,7 +22,7 @@ import java.util.List;
 /**
  * Created by vpineda1996 on 2015-01-16.
  */
-public class NavigationalDrawerFragment extends Fragment implements DrawerAdapter.OnItemClickListener {
+public class NavigationalDrawerFragment extends Fragment implements DrawerAdapter.OnItemClickListener{
 
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
@@ -97,12 +96,36 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
     public void getData(){
         DbHelper dbHelper = new DbHelper(getActivity());
         rooms = dbHelper.getAllRooms();
+        if(mDrawerAdapter != null) {
+            mDrawerAdapter.updateData(rooms);
+            mDrawerAdapter.notifyDataSetChanged();
+        }
     }
 
     /* The click listener for RecyclerView in the navigation drawer */
     @Override
     public void onClick(View view, int position) {
         selectItem(position);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu) {
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.room_recycler_view_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.edit_room:
+                Toast.makeText(getActivity(), "Edit", Toast.LENGTH_SHORT).show();
+                //TODO
+                break;
+            case R.id.remove_room:
+                //TODO: remove room from id
+                break;
+        }
+        return true;
     }
 
     public void selectItem(int position) {
@@ -124,15 +147,12 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
     }
 
 
-    public void setTitle(CharSequence title) {
+    private void setTitle(CharSequence title) {
         mTitle = title;
         Log.i("Title", (String) mTitle);
         if(mToolbar != null) {
             mToolbar.setTitle(mTitle);
         }
     }
-
-
-
 
 }

@@ -11,17 +11,17 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="@dimen/drawer_upper_part_height"
-            android:background="@android:color/holo_orange_light"
+            android:background="@color/app_action_bar"
             android:id="@+id/upper_part_drawer">
 
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="New Text"
+                android:text="Rooms"
                 android:gravity="bottom|center"
                 android:textColor="@android:color/white"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/textView"
+                android:id="@+id/NavigationDrawertextView"
                 android:layout_marginBottom="20dp"/>
 
         <Button
@@ -39,7 +39,9 @@
             android:layout_height="fill_parent"
             android:layout_width="match_parent"
             android:id="@+id/drawer_recycler_view"
-            android:layout_below="@+id/upper_part_drawer">
+            android:layout_below="@+id/upper_part_drawer"
+            android:clickable="true"
+            android:focusable="true">
     </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

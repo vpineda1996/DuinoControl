@@ -11,4 +11,11 @@
 
     <string name="protocol">Protocol</string>
 
+
+    <!-- ========= ROOM DIALOG ============= -->
+
+    <string name="set_room_name">Please enter a name for your room</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+
 </resources>

@@ -10,7 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment;
-import com.vpineda.duinocontrol.app.settings.EditServerFragment;
+import com.vpineda.duinocontrol.app.settings.EditRoomFragment;
 import com.vpineda.duinocontrol.app.settings.MainPreferences;
 
 
@@ -71,21 +71,21 @@ public class MainActivity extends ActionBarActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-
+    // set background color and text color
     private void setToolbar() {
         setContentView(R.layout.activity_navigation_drawer);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         if (mToolbar != null) {
             setSupportActionBar(mToolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            mToolbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.holo_blue_dark)));
+            mToolbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.app_action_bar)));
+            mToolbar.setTitleTextColor(getResources().getColor(android.R.color.primary_text_dark));
         }
     }
 
     public void onButtonDrawerAdd(View view) {
-        getSupportFragmentManager().beginTransaction()
-                .addToBackStack("add_room")
-                .replace(android.R.id.content, new EditServerFragment())
-                .commit();
+        EditRoomFragment dialogFragment = new EditRoomFragment();
+        dialogFragment.newInstance(mDrawer);
+        dialogFragment.show(getSupportFragmentManager(),"edit_room");
     }
 }

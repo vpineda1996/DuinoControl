@@ -7,7 +7,6 @@ import java.util.UUID;
  */
 public class RoomToggle {
 
-
     public enum ToggleType {
         SWITCH,
         ANALOG_IN,
@@ -37,6 +36,9 @@ public class RoomToggle {
         this.roomID = roomUUID;
         this.serverID = serverUUID;
     }
+
+
+    // =========== GETTERS AND SETTERS =================
 
 
     public UUID getUuid() {

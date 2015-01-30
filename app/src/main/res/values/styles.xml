@@ -17,7 +17,7 @@
     </style>
 
     <style name="RedActionBar"
-           parent="@style/Theme.AppCompat.Light.DarkActionBar">
+           parent="Widget.AppCompat.ActionBar">
         <!-- Support library compatibility -->
         <item name="titleTextStyle">@style/RedActionBarText</item>
         <item name="background">@android:color/holo_blue_light</item>

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="top_toolbar_padding">24dp</dimen>
     <dimen name="drawer_upper_part_height">124dp</dimen>
 </resources>

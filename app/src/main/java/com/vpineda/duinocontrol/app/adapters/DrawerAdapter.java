@@ -2,6 +2,7 @@ package com.vpineda.duinocontrol.app.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +18,14 @@ import java.util.List;
  */
 public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.DrawerRecycleViewViewHolder> {
 
-    private OnItemClickListener mListener;
 
+    private OnItemClickListener mListener;
     /**
      * Interface for receiving click events from cells.
      */
     public interface OnItemClickListener {
         public void onClick(View view, int position);
+        public void onCreateContextMenu(ContextMenu menu);
     }
 
     private LayoutInflater inflater;
@@ -46,12 +48,24 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.DrawerRecy
     public void onBindViewHolder(DrawerRecycleViewViewHolder viewHolder, final int i) {
         Room current = data.get(i);
         viewHolder.title.setText(current.getName());
+        //Set listners for clicking
         viewHolder.getmView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onClick(v,i);
+                mListener.onClick(v, i);
             }
         });
+        viewHolder.getmView().setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                mListener.onCreateContextMenu(menu);
+            }
+        });
+
+    }
+
+    public void updateData(List<Room> rooms) {
+        this.data = rooms;
     }
 
     @Override
