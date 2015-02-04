@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * Created by vpineda1996 on 2015-01-15.
  */
-public abstract class RoomToggle {
+public class RoomToggle {
 
     public enum ToggleType {
         SWITCH,
