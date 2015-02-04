@@ -45,6 +45,7 @@ public class DbHelper extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(DbContract.SQL_DELETE_SERVERS_TABLE);
         db.execSQL(DbContract.SQL_DELETE_ROOM_TABLE);
+        //TODO
         onCreate(db);
     }
 
@@ -376,7 +377,7 @@ public class DbHelper extends SQLiteOpenHelper{
     }
 
     // ===================================================
-    // =====METHODS REGARDING MANAGING ROOMS TABLE========
+    // =====METHODS MANAGING TOGGLE TABLE=================
     // ===================================================
 
     public long addToggle (RoomToggle toggle){
@@ -398,7 +399,7 @@ public class DbHelper extends SQLiteOpenHelper{
     public List<RoomToggle> getAllRoomToggles (UUID roomID){
         ArrayList<RoomToggle> toggles = new ArrayList<RoomToggle>();
         SQLiteDatabase db = getReadableDatabase();
-
+        //TODO
         String[] projection = {
                 DbContract.ServerEntry._ID,
                 DbContract.RoomEntry.COLUMN_ROOM_TITLE,
