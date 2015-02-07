@@ -14,8 +14,8 @@ import android.view.*;
 import android.widget.Toast;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.adapters.DrawerAdapter;
+import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
-import com.vpineda.duinocontrol.app.databases.Room;
 
 import java.util.List;
 
@@ -94,12 +94,12 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
     }
 
     public void getData(){
-        DbHelper dbHelper = new DbHelper(getActivity());
-        rooms = dbHelper.getAllRooms();
-        if(mDrawerAdapter != null) {
-            mDrawerAdapter.updateData(rooms);
-            mDrawerAdapter.notifyDataSetChanged();
-        }
+//        DbHelper dbHelper = new DbHelper(getActivity());
+//        rooms = dbHelper.getAllRooms();
+//        if(mDrawerAdapter != null) {
+//            mDrawerAdapter.updateData(rooms);
+//            mDrawerAdapter.notifyDataSetChanged();
+//        }
     }
 
     /* The click listener for RecyclerView in the navigation drawer */
@@ -141,7 +141,7 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
                 .commit();
 
         // update selected item title, then close the drawer
-        setTitle(rooms.get(position).getName());
+        //setTitle(rooms.get(position).getName());
         Log.i("test",String.valueOf(position));
         mDrawerLayout.closeDrawer(getView());
     }

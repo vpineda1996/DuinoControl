@@ -32,7 +32,7 @@ public class ServerFragment extends PreferenceFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.xml.preferences_server_fragment);
+        //addPreferencesFromResource(R.xml.preferences_server_fragment);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         if(getArguments() != null){
@@ -101,7 +101,7 @@ public class ServerFragment extends PreferenceFragment
         listPreference.setTitle(R.string.protocol);
         listPreference.setKey(key_protocol);
         listPreference.setEntries(R.array.available_protocols);
-        listPreference.setEntryValues(R.array.available_protocols_values);
+        //listPreference.setEntryValues(R.array.available_protocols_values);
         if(sharedPreferences.contains(key_protocol)){
             listPreference.setSummary(sharedPreferences.getString(key_protocol,"NULL"));
         }

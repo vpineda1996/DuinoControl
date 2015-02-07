@@ -6,9 +6,12 @@ import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.vpineda.duinocontrol.app.R;
+import com.vpineda.duinocontrol.app.classes.model.Room;
+import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
-import com.vpineda.duinocontrol.app.databases.Room;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,12 +44,26 @@ public class RoomFragment extends Fragment {
 
     }
     private Room getRoomWithIndex() {
-        List<Room> rooms = helper.getAllRooms();
+        //todo
+        List<Room> rooms = new ArrayList<>();
+        rooms.add(new Room("hello"));
         return rooms.get(mRoomSelectedFromList);
     }
 
     private void openDbHelper() {
-        helper = new DbHelper(getActivity());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                helper = new DbHelper(getActivity());
+                List<Server> servers = helper.getAllServers();
+                helper.addServer(new Server("Test "+ String.valueOf(servers.size()), URI.create("http://vmpg.tk")));
+                servers = helper.getAllServers();
+                for (Server s : servers) {
+                    System.out.println(s.getName());
+                }
+            }
+        });
+
     }
 
     @Override

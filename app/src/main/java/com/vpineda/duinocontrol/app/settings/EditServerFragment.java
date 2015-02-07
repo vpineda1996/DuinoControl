@@ -8,10 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.vpineda.duinocontrol.app.R;
-import com.vpineda.duinocontrol.app.databases.DbContract;
+import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
-import com.vpineda.duinocontrol.app.databases.DuServer;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class EditServerFragment extends Fragment {
     private EditText name, hostname, port, path;
     private List<String> str;
     private Spinner protocol;
-    private DuServer selectedServer;
+    private Server selectedServer;
 
 
     @Override
@@ -50,7 +50,7 @@ public class EditServerFragment extends Fragment {
 
         // get all servers
         final DbHelper dbHelper = new DbHelper(getActivity());
-        List<DuServer> listServers= dbHelper.getAllDuServers();
+        List<Server> listServers= dbHelper.getAllServers();
 
         //start all the listeners in prefs and add the listener to the button
         name = (EditText) getActivity().findViewById(R.id.server_tittle_editText);
@@ -72,51 +72,51 @@ public class EditServerFragment extends Fragment {
                 if(!updating) {
                     // save new entry
                     try {
-                        DuServer newServer = new DuServer(
-                                name.getText().toString(),
-                                protocol.getSelectedItemPosition(),
-                                hostname.getText().toString(),
-                                Integer.valueOf(port.getText().toString()),
-                                path.getText().toString());
-                        dbHelper.addDuServer(newServer);
+                        Server newServer = new Server(
+                                name.getText().toString(),URI.create(protocol.toString() +
+                                        hostname.getText().toString() +
+                                        port.getText().toString() +
+                                        path.getText().toString()
+                        ));
+                        dbHelper.addServer(newServer);
                     }catch (Exception e){
 
                     }
                 }else{
                     // update entry
-                    try {
-                        if (!(name.getText().toString().equals(selectedServer.getServerName()))) {
-                            dbHelper.updateServer(
-                                    selectedServer,
-                                    DbContract.ServerEntry.COLUMN_SERVER_TITLE,
-                                    name.getText().toString());
-                        }
-                        if (!(protocol.getSelectedItemPosition() == selectedServer.getProtocol())) {
-                            dbHelper.updateServer(
-                                    selectedServer,
-                                    DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL,
-                                    String.valueOf(protocol.getSelectedItemId()));
-                        }
-                        if (!(hostname.getText().toString().equals(selectedServer.getHost()))) {
-                            dbHelper.updateServer(
-                                    selectedServer,
-                                    DbContract.ServerEntry.COLUMN_SERVER_HOST,
-                                    hostname.getText().toString());
-                        }
-                        if (!(port.getText().toString().equals(selectedServer.getHost()))) {
-                            dbHelper.updateServer(
-                                    selectedServer,
-                                    DbContract.ServerEntry.COLUMN_SERVER_PORT,
-                                    port.getText().toString());
-                        }
-                        if (!(path.getText().toString().equals(selectedServer.getHost()))) {
-                            dbHelper.updateServer(
-                                    selectedServer,
-                                    DbContract.ServerEntry.COLUMN_SERVER_PATH,
-                                    path.getText().toString());
-                        }
-                    }catch (Exception e){
-                    }
+//                    try {
+//                        if (!(name.getText().toString().equals(selectedServer.getName()))) {
+//                            dbHelper.updateServer(
+//                                    selectedServer,
+//                                    DbContract.ServerEntry.COLUMN_SERVER_TITLE,
+//                                    name.getText().toString());
+//                        }
+//                        if (!(protocol.getSelectedItemPosition() == selectedServer.getProtocol())) {
+//                            dbHelper.updateServer(
+//                                    selectedServer,
+//                                    DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL,
+//                                    String.valueOf(protocol.getSelectedItemId()));
+//                        }
+//                        if (!(hostname.getText().toString().equals(selectedServer.getHost()))) {
+//                            dbHelper.updateServer(
+//                                    selectedServer,
+//                                    DbContract.ServerEntry.COLUMN_SERVER_HOST,
+//                                    hostname.getText().toString());
+//                        }
+//                        if (!(port.getText().toString().equals(selectedServer.getHost()))) {
+//                            dbHelper.updateServer(
+//                                    selectedServer,
+//                                    DbContract.ServerEntry.COLUMN_SERVER_PORT,
+//                                    port.getText().toString());
+//                        }
+//                        if (!(path.getText().toString().equals(selectedServer.getHost()))) {
+//                            dbHelper.updateServer(
+//                                    selectedServer,
+//                                    DbContract.ServerEntry.COLUMN_SERVER_PATH,
+//                                    path.getText().toString());
+//                        }
+//                    }catch (Exception e){
+//                    }
                 }
                 getFragmentManager().popBackStack();
             }
@@ -131,11 +131,11 @@ public class EditServerFragment extends Fragment {
 
     }
 
-    private void showSelectedServerOptions(DuServer selectedServer) {
-        name.setText(selectedServer.getServerName());
-        hostname.setText(selectedServer.getHost());
-        protocol.setSelection(selectedServer.getProtocol());
-        port.setText(String.valueOf(selectedServer.getPort()));
-        path.setText(selectedServer.getPath());
+    private void showSelectedServerOptions(Server selectedServer) {
+        name.setText(selectedServer.getName());
+//        hostname.setText(selectedServer.getHost());
+//        protocol.setSelection(selectedServer.getProtocol());
+//        port.setText(String.valueOf(selectedServer.getPort()));
+//        path.setText(selectedServer.getPath());
     }
 }

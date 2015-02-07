@@ -5,8 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import com.vpineda.duinocontrol.app.classes.model.Server;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,13 +16,14 @@ import java.util.UUID;
 /**
  * Created by vpineda1996 on 2015-01-10.
  */
-public class DbHelper extends SQLiteOpenHelper{
+public class DbHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "main.db";
 
-    public DbHelper(Context context){
-        super (context,DATABASE_NAME,null,DATABASE_VERSION);
+
+    public DbHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -29,23 +31,14 @@ public class DbHelper extends SQLiteOpenHelper{
         db.execSQL(DbContract.SQL_CREATE_TABLE_SERVERS);
         db.execSQL(DbContract.SQL_CREATE_TABLE_ROOM);
         db.execSQL(DbContract.SQL_CREATE_TABLE_TOGGLE);
-
-        // Needs at least one room in the database
-        ContentValues values = new ContentValues();
-        values.put(DbContract.RoomEntry.COLUMN_ROOM_UUID,UUID.randomUUID().toString());
-        values.put(DbContract.RoomEntry.COLUMN_ROOM_TITLE, "Default");
-
-        db.insert(
-                DbContract.RoomEntry.ROOM_TABLE_NAME,
-                null,
-                values);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(DbContract.SQL_DELETE_SERVERS_TABLE);
         db.execSQL(DbContract.SQL_DELETE_ROOM_TABLE);
-        //TODO
+        db.execSQL(DbContract.SQL_DELETE_TOOGLE_TABLE);
+        //TODO: DO SOMETHING WHEN UPGRADING INSTEAD OF JUST DELETING
         onCreate(db);
     }
 
@@ -55,41 +48,45 @@ public class DbHelper extends SQLiteOpenHelper{
     }
 
     /*
-    ALL SERVER RELATED METHODS OF INSERTING DELETING AND GETTING DATA FROM SERVER TABLE
+     * ===================================================================================
+     * ALL SERVER RELATED METHODS OF INSERTING DELETING AND GETTING DATA FROM SERVER TABLE
+     * ===================================================================================
      */
 
-    public long addDuServer (DuServer server){
+    /* adds a server to the SERVER TABLE
+     * REQUIRES: that a SERVER TABLE exists on the database
+     * EFFECTS: adds a server to the SERVER TABLE
+     */
+    public long addServer(Server server) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(DbContract.ServerEntry.COLUMN_SERVER_TITLE, server.getServerName());
-        values.put(DbContract.ServerEntry.COLUMN_SERVER_UUID, server.getServerID().toString());
-        values.put(DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL, server.getProtocol());
-        values.put(DbContract.ServerEntry.COLUMN_SERVER_HOST, server.getHost());
-        values.put(DbContract.ServerEntry.COLUMN_SERVER_PORT, server.getPort());
-        values.put(DbContract.ServerEntry.COLUMN_SERVER_PATH, server.getPath());
-
+        values.put(DbContract.ServerEntry.COLUMN_SERVER_TITLE, server.getName());
+        values.put(DbContract.ServerEntry.COLUMN_SERVER_UUID, server.getUuid().toString());
+        values.put(DbContract.ServerEntry.COLUMN_SERVER_URI, server.getUri().toString());
         return db.insert(
                 DbContract.ServerEntry.SERVER_TABLE_NAME,
                 null,
                 values);
     }
 
-    public List<DuServer> getAllDuServers (){
-        ArrayList<DuServer> servers = new ArrayList<DuServer>();
+    /*
+     * gets all servers and store them in a List
+     */
+
+    public List<Server> getAllServers() {
+        // start the array where all of the servers will be stored
+        ArrayList<Server> servers = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
 
         String[] projection = {
                 DbContract.ServerEntry._ID,
                 DbContract.ServerEntry.COLUMN_SERVER_TITLE,
                 DbContract.ServerEntry.COLUMN_SERVER_UUID,
-                DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL,
-                DbContract.ServerEntry.COLUMN_SERVER_HOST,
-                DbContract.ServerEntry.COLUMN_SERVER_PORT,
-                DbContract.ServerEntry.COLUMN_SERVER_PATH
+                DbContract.ServerEntry.COLUMN_SERVER_URI
         };
 
-           // How you want the results sorted in the resulting Cursor
+        // How you want the results sorted in the resulting Cursor
         String sortOrder =
                 DbContract.ServerEntry._ID + " DESC";
 
@@ -105,28 +102,21 @@ public class DbHelper extends SQLiteOpenHelper{
 
         boolean hasVal = c.moveToFirst();
 
-        while (hasVal){
+        while (hasVal) {
             UUID id = UUID.fromString(c.getString(c.getColumnIndex(DbContract.ServerEntry.COLUMN_SERVER_UUID)));
-            String title, host, path;
-            int protocol, port;
-            title = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_TITLE));
-            protocol = c.getInt(c.getColumnIndex(DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL));
-            host = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_HOST));
-            port = c.getInt(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_PORT));
-            path = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_PATH));
-
-            DuServer server = new DuServer(id, title, protocol, host, port, path);
-
-            servers.add(server);
-
+            String title = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_TITLE));
+            URI uri = URI.create(c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_URI)));
+            Server server = new Server(id, title, uri);
+            servers.add(0,server);
+            // assign to hasVal if moveToNext is valid
             hasVal = c.moveToNext();
         }
-
         db.close();
-
-        Collections.reverse(servers);
+        //Reverse the server
+        //Collections.reverse(servers);
         return servers;
     }
+    /* Get
 
     public DuServer getDuServer (DuServer dServer) {
 
@@ -245,7 +235,7 @@ public class DbHelper extends SQLiteOpenHelper{
     }
 
     public String[] getAllServersProperty (String property) {
-        List<DuServer> duServer = getAllDuServers();
+        List<DuServer> duServer = getAllServers();
         String[] propertyList = new String[duServer.size()];
         for(int i = 0; i < duServer.size(); i++){
             DuServer server = duServer.get(i);
@@ -532,7 +522,7 @@ public class DbHelper extends SQLiteOpenHelper{
             }
         }
         return propertyList;
-    }
+    }*/
 
 
 }

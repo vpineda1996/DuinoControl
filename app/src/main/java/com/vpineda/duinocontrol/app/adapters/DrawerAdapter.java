@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.vpineda.duinocontrol.app.R;
-import com.vpineda.duinocontrol.app.databases.Room;
+import com.vpineda.duinocontrol.app.classes.model.Room;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +70,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.DrawerRecy
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return 0;//data.size();
+        //TODO
     }
 
     class DrawerRecycleViewViewHolder extends RecyclerView.ViewHolder{

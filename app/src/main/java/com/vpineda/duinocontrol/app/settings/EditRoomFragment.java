@@ -10,9 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import com.vpineda.duinocontrol.app.R;
+import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.databases.DbContract;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
-import com.vpineda.duinocontrol.app.databases.Room;
 import com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment;
 
 import java.util.List;
@@ -56,9 +56,9 @@ public class EditRoomFragment extends DialogFragment {
                         // if we have update that room otherwise create a new one
                         mNewRoomName = mEditText.getText().toString();
                         if (mOldRoom == null && !(mNewRoomName.equals(""))) {
-                            helper.addRoom(new Room(mNewRoomName));
+//                            helper.addRoom(new Room(mNewRoomName));
                         } else if (!(mNewRoomName.equals(""))) {
-                            helper.updateRoom(mOldRoom, DbContract.RoomEntry.COLUMN_ROOM_TITLE, mNewRoomName);
+//                            helper.updateRoom(mOldRoom, DbContract.RoomEntry.COLUMN_ROOM_TITLE, mNewRoomName);
                         }
                         mDrawer.getData();
                     }
@@ -82,8 +82,8 @@ public class EditRoomFragment extends DialogFragment {
         // if opened from a room option menu add add that room to mOldRoom
         if(getArguments() != null){
             int pos = getArguments().getInt("add_room");
-            List<Room> rooms = helper.getAllRooms();
-            mOldRoom = rooms.get(pos);
+//            List<Room> rooms = helper.getAllRooms();
+//            mOldRoom = rooms.get(pos);
         }
     }
 }
