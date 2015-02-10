@@ -1,9 +1,9 @@
 package com.vpineda.duinocontrol.app.classes.model;
 
 import android.content.Context;
-import org.json.JSONObject;
+import com.vpineda.duinocontrol.app.classes.model.toggles.Toggle;
+import com.vpineda.duinocontrol.app.databases.DbHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,33 +13,48 @@ import java.util.UUID;
 public class Room {
     private UUID uuid;
     private String name;
-    private JSONObject toggles;
+    private List<Toggle> toggles;
 
-    /* =====================================
+    /**
+     * =====================================
      * ===========CONSTRUCTORS==============
      * =====================================
      */
-
-    public Room (UUID id, String name, JSONObject toggles) {
+    // This constructor should only be used by the database class, it is preferable
+    // that you dont use it to initialize a Room object
+    public Room (UUID id, String name, List<Toggle> toggles) {
         this.uuid = id;
         this.name = name;
         this.toggles = toggles;
     }
-    public Room (String name){
-        this(UUID.randomUUID(),name, new JSONObject());
+
+    public Room (UUID id, String name, final Context context) {
+        this.uuid = id;
+        this.name = name;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                toggles = getTogglesFromDatabase(context);
+            }
+        }).run();
+    }
+    public Room (String name, Context context){
+        this(UUID.randomUUID(),name,context);
     }
 
-    public Room (UUID id, String name){
-        this(id, name, new JSONObject());
+    /**
+     * @param context
+     * @return list of toggle in current room
+     */
+    public List<Toggle> getTogglesFromDatabase(Context context){
+        DbHelper helper = new DbHelper(context);
+        List<Toggle> toggleList = helper.getAllRoomToggles(uuid);
+        helper.close();
+        return toggleList;
     }
 
-    public List<Toggle> getToggles(Context context){
-     //TODO: get all toggles
-        return null;
-    }
 
-
-    /*
+    /**
      * =====================================
      * ========GETTERS AND SETTERS==========
      * =====================================
@@ -61,14 +76,11 @@ public class Room {
         this.name = name;
     }
 
-    public JSONObject getToggles() {
+    public List<Toggle> getToggles() {
         return toggles;
     }
 
-    public void setToggles(JSONObject toggles) {
-        this.toggles = toggles;
-    }
-    public void setToggles(ArrayList<Toggle> toggles){
-
+    public void addToggle(Toggle toggle) {
+        toggles.add(toggle);
     }
 }

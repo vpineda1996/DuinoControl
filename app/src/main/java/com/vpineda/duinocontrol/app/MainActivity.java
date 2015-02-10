@@ -73,7 +73,7 @@ public class MainActivity extends ActionBarActivity {
 
     // set background color and text color
     private void setToolbar() {
-        setContentView(R.layout.activity_navigation_drawer);
+        setContentView(R.layout.activity_navigation_drawer_old);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         if (mToolbar != null) {
             setSupportActionBar(mToolbar);

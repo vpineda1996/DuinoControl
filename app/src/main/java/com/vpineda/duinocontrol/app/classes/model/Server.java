@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -23,7 +24,8 @@ public class Server {
     private String name;
     private URI uri;
 
-    /* =====================================
+    /**
+     * =====================================
      * ===========CONSTRUCTORS==============
      * =====================================
      */
@@ -38,17 +40,20 @@ public class Server {
     }
 
     //TODO: send JSON HTTP request
-    /*
-     * REQUIRES: a valid JSONbject
-     * EFFECTS: sends your desired JSON to the required server
+
+    /**
+     * send a message to the server
+     * @param message a message that will be sent to this server
+     * @return the message of the server in JSON object
+     * @throws JSONException
      */
-    public JSONObject sendJSONMessage(JSONObject message) throws JSONException {
+    public JSONObject sendCommand(JSONObject message) throws JSONException{
         HttpClient httpClient = new DefaultHttpClient();
         // setup the message that you are going to send
         HttpPost httpPost = new HttpPost(uri);
         httpPost.setHeader("Content-type", "application/json");
 
-        InputStream input = null;
+        InputStream input;
         String result = null;
         try {
             httpPost.setEntity(new StringEntity(message.toString()));
@@ -64,16 +69,11 @@ public class Server {
             result = sb.toString();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (input != null)
-                    input.close();
-            } catch (Exception e) {}
         }
         return new JSONObject(result);
     }
 
-    /*
+    /**
      * =====================================
      * ========GETTERS AND SETTERS==========
      * =====================================

@@ -38,8 +38,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.DrawerRecy
     }
 
     @Override
-    public DrawerRecycleViewViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = inflater.inflate(R.layout.recycler_view_drawer_layout,viewGroup,false);
+    public DrawerRecycleViewViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
+        View view = inflater.inflate(R.layout.recycler_view_drawer_layout_old,viewGroup,false);
         DrawerRecycleViewViewHolder holder = new DrawerRecycleViewViewHolder(view);
         return holder;
     }

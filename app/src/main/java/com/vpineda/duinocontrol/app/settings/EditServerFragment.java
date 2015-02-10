@@ -40,7 +40,7 @@ public class EditServerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.edit_server_main, container, false);
+        View view = inflater.inflate(R.layout.edit_server_main_old, container, false);
         return view;
     }
 

@@ -42,7 +42,7 @@ public class PlanetAdapter extends RecyclerView.Adapter<PlanetAdapter.ViewHolder
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater vi = LayoutInflater.from(parent.getContext());
-        View v = vi.inflate(R.layout.drawer_list_item, parent, false);
+        View v = vi.inflate(R.layout.drawer_list_item_old, parent, false);
         TextView tv = (TextView) v.findViewById(android.R.id.text1);
         return new ViewHolder(tv);
     }

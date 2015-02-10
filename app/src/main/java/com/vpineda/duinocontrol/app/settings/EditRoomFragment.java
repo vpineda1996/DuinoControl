@@ -11,11 +11,8 @@ import android.view.View;
 import android.widget.EditText;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Room;
-import com.vpineda.duinocontrol.app.databases.DbContract;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
 import com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment;
-
-import java.util.List;
 
 
 /**
@@ -43,7 +40,7 @@ public class EditRoomFragment extends DialogFragment {
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
 
-        View view = inflater.inflate(R.layout.edit_room_main, null);
+        View view = inflater.inflate(R.layout.edit_room_main_old, null);
         mEditText = (EditText) view.findViewById(R.id.nameOfRoomEditText);
         mEditText.setHint("Name");
 

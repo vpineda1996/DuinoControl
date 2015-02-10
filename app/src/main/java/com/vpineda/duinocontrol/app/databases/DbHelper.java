@@ -5,11 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.classes.model.Server;
+import com.vpineda.duinocontrol.app.classes.model.toggles.Toggle;
+import com.vpineda.duinocontrol.app.classes.model.toggles.ToggleTypes;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,15 +50,16 @@ public class DbHelper extends SQLiteOpenHelper {
         super.onDowngrade(db, oldVersion, newVersion);
     }
 
-    /*
+    /**
      * ===================================================================================
      * ALL SERVER RELATED METHODS OF INSERTING DELETING AND GETTING DATA FROM SERVER TABLE
      * ===================================================================================
      */
 
-    /* adds a server to the SERVER TABLE
-     * REQUIRES: that a SERVER TABLE exists on the database
-     * EFFECTS: adds a server to the SERVER TABLE
+    /**
+     * adds server to the SERVER TABLE
+     * @param server a valid server
+     * @return returns the row ID of the newly inserted row, or -1 if an error occurred
      */
     public long addServer(Server server) {
         SQLiteDatabase db = getWritableDatabase();
@@ -70,10 +74,10 @@ public class DbHelper extends SQLiteOpenHelper {
                 values);
     }
 
-    /*
+    /**
      * gets all servers and store them in a List
+     * @return a list of all the serverx
      */
-
     public List<Server> getAllServers() {
         // start the array where all of the servers will be stored
         ArrayList<Server> servers = new ArrayList<>();
@@ -116,30 +120,27 @@ public class DbHelper extends SQLiteOpenHelper {
         //Collections.reverse(servers);
         return servers;
     }
-    /* Get
 
-    public DuServer getDuServer (DuServer dServer) {
-
-        UUID id = dServer.getServerID();
-        DuServer server = null;
+    /**
+     * Gets the url and everything of that specific server
+     * @param wantedServer UUID of that specific server
+     * @return the server object or null if it doesn't exist
+     */
+    public Server getServer(UUID wantedServer){
+        Server server = null;
         SQLiteDatabase db = getReadableDatabase();
-
         String[] projection = {
                 DbContract.ServerEntry._ID,
                 DbContract.ServerEntry.COLUMN_SERVER_TITLE,
                 DbContract.ServerEntry.COLUMN_SERVER_UUID,
-                DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL,
-                DbContract.ServerEntry.COLUMN_SERVER_HOST,
-                DbContract.ServerEntry.COLUMN_SERVER_PORT,
-                DbContract.ServerEntry.COLUMN_SERVER_PATH
+                DbContract.ServerEntry.COLUMN_SERVER_URI
         };
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
                 DbContract.ServerEntry._ID + " DESC";
-
-        String selection = DbContract.ServerEntry.COLUMN_SERVER_UUID + " ASC";
-        String[] selectionArgs = {id.toString()};
+        String selection = DbContract.ServerEntry.COLUMN_SERVER_UUID + " LIKE ?";
+        String[] selectionArgs = {wantedServer.toString()};
 
         Cursor c = db.query(
                 DbContract.ServerEntry.SERVER_TABLE_NAME,    // The table to query
@@ -153,24 +154,28 @@ public class DbHelper extends SQLiteOpenHelper {
 
         boolean hasVal = c.moveToFirst();
 
-        if (hasVal){
-            String title, host, path;
-            int protocol, port;
-            title = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_TITLE));
-            protocol = c.getInt(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL));
-            host = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_HOST));
-            port = c.getInt(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_PORT));
-            path = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_PATH));
-
-            server = new DuServer(id, title, protocol, host, port, path);
-
+        while (hasVal) {
+            UUID id = UUID.fromString(c.getString(c.getColumnIndex(DbContract.ServerEntry.COLUMN_SERVER_UUID)));
+            String title = c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_TITLE));
+            URI uri = URI.create(c.getString(c.getColumnIndexOrThrow(DbContract.ServerEntry.COLUMN_SERVER_URI)));
+            server = new Server(id, title, uri);
+            // assign to hasVal if moveToNext is valid
+            hasVal = c.moveToNext();
         }
-
         db.close();
-
-        return server;
+        if(server != null) {
+            return server;
+        }else return null;
+    }
+    public Server getServer(String wantedServerUUID){
+        return this.getServer(UUID.fromString(wantedServerUUID));
     }
 
+    /**
+     * removes the server from the database
+     * TODO: Remove the toggles that use the server when it is removed
+     * @param uuid uuid of the server or the Server object
+     */
     public void removeServer (UUID uuid){
         SQLiteDatabase db = getReadableDatabase();
 
@@ -181,14 +186,22 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.close();
     }
+    public void removeServer (Server server){
+        this.removeServer(server.getUuid());
+    }
 
-    public void updateServer(DuServer server, String updateField, String newValue){
-
+    /**
+     * updates a specific value of that server
+     * @param server UUID of the server that you want to update
+     * @param updateField update fields (listed on DbContract.ServerEntry)
+     * @param newValue new value as a string that will be instead of the old value
+     */
+    public void updateServer(UUID server, String updateField, String newValue){
         SQLiteDatabase db = getReadableDatabase();
         ContentValues values = new ContentValues();
 
         String selection = DbContract.ServerEntry.COLUMN_SERVER_UUID +" LIKE ?";
-        String[] selectionArgs = { server.getServerID().toString() };
+        String[] selectionArgs = { server.toString() };
 
         try {
             if (updateField.equals(DbContract.ServerEntry.COLUMN_SERVER_TITLE)) {
@@ -198,29 +211,8 @@ public class DbHelper extends SQLiteOpenHelper {
                         values,
                         selection,
                         selectionArgs);
-            } else if (updateField.equals(DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL)) {
-                values.put(DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL, Integer.valueOf(newValue));
-                db.update(
-                        DbContract.ServerEntry.SERVER_TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-            } else if (updateField.equals(DbContract.ServerEntry.COLUMN_SERVER_HOST)) {
-                values.put(DbContract.ServerEntry.COLUMN_SERVER_HOST, newValue);
-                db.update(
-                        DbContract.ServerEntry.SERVER_TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-            } else if (updateField.equals(DbContract.ServerEntry.COLUMN_SERVER_PORT)) {
-                values.put(DbContract.ServerEntry.COLUMN_SERVER_PORT, Integer.valueOf(newValue));
-                db.update(
-                        DbContract.ServerEntry.SERVER_TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-            } else if (updateField.equals(DbContract.ServerEntry.COLUMN_SERVER_PATH)) {
-                values.put(DbContract.ServerEntry.COLUMN_SERVER_PATH, newValue);
+            } else if (updateField.equals(DbContract.ServerEntry.COLUMN_SERVER_URI)) {
+                values.put(DbContract.ServerEntry.COLUMN_SERVER_URI, Integer.valueOf(newValue));
                 db.update(
                         DbContract.ServerEntry.SERVER_TABLE_NAME,
                         values,
@@ -233,35 +225,45 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         db.close();
     }
+    public void updateServer(Server server, String updateField, String newValue){
+        this.updateServer(server.getUuid(),updateField,newValue);
+    }
 
+    /**
+     * gets an array containing strings of that specific property
+     * @param property can be any of the properties in DbContract.ServerEntry
+     * @return an array containing all of the properties
+     */
     public String[] getAllServersProperty (String property) {
-        List<DuServer> duServer = getAllServers();
-        String[] propertyList = new String[duServer.size()];
-        for(int i = 0; i < duServer.size(); i++){
-            DuServer server = duServer.get(i);
+        List<Server> servers = getAllServers();
+        String[] propertyList = new String[servers.size()];
+        int i = 0;
+        for(Server server : servers){
             if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_UUID)) {
-                propertyList[i] = server.getServerID().toString();
-            }else if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_TITLE)) {
-                propertyList[i] = server.getServerName();
-            }else if (property.equals(DbContract.ServerEntry._ID)) {
-                propertyList[i] = String.valueOf(i);
-            } else if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL)) {
-                propertyList[i] = String.valueOf(server.getProtocol());
-            } else if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_HOST)) {
-                propertyList[i] = server.getHost();
-            } else if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_PORT)) {
-                propertyList[i] = String.valueOf(server.getPort());
-            } else if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_PATH)) {
-                propertyList[i] = server.getPath();
+                propertyList[i] = server.getUuid().toString();
+            } else if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_TITLE)) {
+                propertyList[i] = server.getName();
+            } else if (property.equals(DbContract.ServerEntry.COLUMN_SERVER_URI)) {
+                propertyList[i] = String.valueOf(server.getUri());
             }
+            i++;
         }
         return propertyList;
     }
 
-    // ===================================================
-    // =====METHODS REGARDING MANAGING ROOMS TABLE========
-    // ===================================================
+    //TODO implement all of that code below in the newly refactored way :D (FUN)
 
+    /**
+     * ================================================================================
+     * ALL ROOM RELATED METHODS OF INSERTING DELETING AND GETTING DATA FROM ROOM TABLE
+     * ================================================================================
+     */
+
+    /**
+     * Adds a room to the Room table
+     * @param room the room you want to add
+     * @return returns the row ID of the newly inserted row, or -1 if an error occurred
+     */
     public long addRoom (Room room){
         SQLiteDatabase db = getWritableDatabase();
 
@@ -275,8 +277,12 @@ public class DbHelper extends SQLiteOpenHelper {
                 values);
     }
 
-    public List<Room> getAllRooms (){
-        ArrayList<Room> rooms = new ArrayList<Room>();
+    /**
+     * gets all of the rooms in the database
+     * @return list containing all of the rooms
+     */
+    public List<Room> getAllRooms(){
+        ArrayList<Room> rooms = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
 
         String[] projection = {
@@ -298,23 +304,23 @@ public class DbHelper extends SQLiteOpenHelper {
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
         );
-
         boolean hasVal = c.moveToFirst();
 
         while (hasVal){
             String title = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_TITLE));
             UUID id = UUID.fromString(c.getString(c.getColumnIndex(DbContract.RoomEntry.COLUMN_ROOM_UUID)));
-            Room room = new Room(title,id);
-
-            rooms.add(room);
+            Room room = new Room(id,title,getAllRoomToggles(id));
+            rooms.add(0,room);
             hasVal = c.moveToNext();
         }
         db.close();
-        Collections.reverse(rooms);
         return rooms;
     }
 
-
+    /**
+     * Removes a room with that specific UUID
+     * @param uuid uuid of the room that will be deleted
+     */
     public void removeRoom (UUID uuid){
         SQLiteDatabase db = getReadableDatabase();
 
@@ -325,14 +331,26 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.close();
     }
+    public void removeRoom (Room room){
+        this.removeRoom(room.getUuid());
+        //TODO: when removing a room, remove the UUID from all the toggles
+    }
 
-    public void updateRoom(Room room, String updateField, String newValue){
+    /**
+     * updates the room in the specific update field with the specific
+     * new value
+     * @param roomUUID the room UUID that will be updated
+     * @param updateField the update field that you want to update, all of this values
+     *                    are on DbContract.RoomEntry
+     * @param newValue it is the new string value that you will assign to the updateField
+     */
+    public void updateRoom(UUID roomUUID, String updateField, String newValue){
 
         SQLiteDatabase db = getReadableDatabase();
         ContentValues values = new ContentValues();
 
         String selection = DbContract.RoomEntry.COLUMN_ROOM_UUID +" LIKE ?";
-        String[] selectionArgs = { room.getUuid().toString() };
+        String[] selectionArgs = { roomUUID.toString() };
 
         try {
             if (updateField.equals(DbContract.RoomEntry.COLUMN_ROOM_TITLE)) {
@@ -349,36 +367,73 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         db.close();
     }
+    public void updateRoom(Room room, String updateField, String newValue){
+        this.updateRoom(room.getUuid(), updateField, newValue);
+    }
 
-    public String[] getAllRoomsProperty (String property) {
-        List<Room> rooms = getAllRooms();
-        String[] propertyList = new String[rooms.size()];
-        for(int i = 0; i < rooms.size(); i++){
-            Room room = rooms.get(i);
+    /**
+     * Preferable method to the get rooms since this only goes once to the database instead of two times
+     * because it doesn't add the toggles to Room
+     * @param property a property in DbContract.RoomEntry
+     * @return list containing the specific property of the room
+     */
+    public List<String> getAllRoomsProperty (String property) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        String[] projection = {
+                DbContract.ServerEntry._ID,
+                DbContract.RoomEntry.COLUMN_ROOM_TITLE,
+                DbContract.RoomEntry.COLUMN_ROOM_UUID
+        };
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder =
+                DbContract.RoomEntry._ID + " DESC";
+
+        Cursor c = db.query(
+                DbContract.RoomEntry.ROOM_TABLE_NAME,    // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+        List<String> propertyList = new ArrayList<>();
+        boolean hasVal = c.moveToFirst();
+        while (hasVal) {
             if (property.equals(DbContract.RoomEntry.COLUMN_ROOM_UUID)) {
-                propertyList[i] = room.getUuid().toString();
-            }else if (property.equals(DbContract.RoomEntry.COLUMN_ROOM_TITLE)) {
-                propertyList[i] = room.getName();
-            }else if (property.equals(DbContract.RoomEntry._ID)) {
-                propertyList[i] = String.valueOf(i);
+                propertyList.add(0,c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_UUID)));
+            } else if (property.equals(DbContract.RoomEntry.COLUMN_ROOM_TITLE)) {
+                propertyList.add(0,c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_TITLE)));
             }
         }
+        db.close();
         return propertyList;
     }
 
-    // ===================================================
-    // =====METHODS MANAGING TOGGLE TABLE=================
-    // ===================================================
+    /**
+     * ===================================================================================
+     * ALL TOGGLE RELATED METHODS OF INSERTING DELETING AND GETTING DATA FROM TOGGLE TABLE
+     * ===================================================================================
+     */
 
-    public long addToggle (RoomToggle toggle){
+    /**
+     * Adds a toggle to the Toggle database
+     * (something really important is that the toggle must have a valid
+     * server saved on the SERVER TABLE assigned to it)
+     * @param toggle toggle that you want to add to the database
+     * @return the row ID of the newly inserted row, or -1 if an error occurred
+     */
+    public long addToggle (Toggle toggle){
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE, toggle.getName());
         values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_UUID, toggle.getUuid().toString());
-        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE, toggle.getType().name());
-        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID, toggle.getRoomID().toString());
-        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID, toggle.getServerID().toString());
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE, toggle.getType().toString());
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID, toggle.getRoomsUUIDAsJSON().toString());
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID, toggle.getServer().getUuid().toString());
 
         return db.insert(
                 DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
@@ -386,8 +441,16 @@ public class DbHelper extends SQLiteOpenHelper {
                 values);
     }
 
-    public List<RoomToggle> getAllRoomToggles (UUID roomID){
-        ArrayList<RoomToggle> toggles = new ArrayList<RoomToggle>();
+    /**
+     * Returns the list of toggles of with all of their characteristics
+     * (something really important is that the toggle must have a valid
+     * server saved on the SERVER TABLE assigned to it)
+     * TODO: maybe check if the server is on the table and if it isn't throw an error
+     * @param roomID uuid of the room that wants toggles
+     * @return a list of the toggles of the room
+     */
+    public List<Toggle> getAllRoomToggles (UUID roomID){
+        ArrayList<Toggle> toggles = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         //TODO
         String[] projection = {
@@ -404,11 +467,11 @@ public class DbHelper extends SQLiteOpenHelper {
         String sortOrder =
                 DbContract.ServerEntry._ID + " DESC";
 
-        String selection = DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID + " ASC";
-        String[] selectionArgs = {roomID.toString()};
+        String selection = DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID + " LIKE ?";
+        String[] selectionArgs = {"%" + roomID.toString() + "%"};
 
         Cursor c = db.query(
-                DbContract.RoomEntry.ROOM_TABLE_NAME,    // The table to query
+                DbContract.ToggleEntry.TOGGLE_TABLE_NAME,    // The table to query
                 projection,                               // The columns to return
                 selection,                                     // The columns for the WHERE clause
                 selectionArgs,                                     // The values for the WHERE clause
@@ -416,33 +479,33 @@ public class DbHelper extends SQLiteOpenHelper {
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
         );
-
         boolean hasVal = c.moveToFirst();
-
         while (hasVal){
             String title, uuid, roomUUID, serverUUID ;
-            RoomToggle.ToggleType toggleType;
+            ToggleTypes toggleType =
+                    ToggleTypes.valueOf(c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE)));
             title = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_TITLE));
             uuid = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_UUID));
-            toggleType = RoomToggle.ToggleType.valueOf(c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE)));
             roomUUID = c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID));
             serverUUID = c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID));
 
-            RoomToggle toggle = new RoomToggle(UUID.fromString(uuid),
+            toggles.add(toggleType.getToggleObject(UUID.fromString(uuid),
                     title,
-                    toggleType,
-                    UUID.fromString(roomUUID),
-                    UUID.fromString(serverUUID));
+                    getServer(serverUUID),
+                    Toggle.getRoomsUUIDListFromRoomJSON(roomUUID)));
             hasVal = c.moveToNext();
-
-            toggles.add(toggle);
         }
-
         db.close();
-        Collections.reverse(toggles);
         return toggles;
     }
+    public List<Toggle> getAllRoomToggles (Room room){
+        return this.getAllRoomToggles(room.getUuid());
+    }
 
+    /**
+     * Removes the toggle from the database
+     * @param uuid
+     */
     public void removeToggle (UUID uuid){
         SQLiteDatabase db = getReadableDatabase();
 
@@ -453,7 +516,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.close();
     }
-    public void updateToggle(RoomToggle toggle, RoomToggle.ToggleType newValue){
+    /*
+    public void updateToggle(Toggle toggle, RoomToggle.ToggleType newValue){
         updateToggle(toggle, DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE, newValue.name());
     }
 
@@ -501,12 +565,11 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         db.close();
     }
-
-    public String[] getAllTogglesProperty (String property, UUID roomID) {
-        List<RoomToggle> toggles = getAllRoomToggles(roomID);
+    public String[] getAllTogglesPropertyByRoom (String property, UUID roomID) {
+        List<Toggle> toggles = getAllRoomToggles(roomID);
         String[] propertyList = new String[toggles.size()];
         for(int i = 0; i < toggles.size(); i++){
-            RoomToggle toogle = toggles.get(i);
+             toogle = toggles.get(i);
             if (property.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_UUID)) {
                 propertyList[i] = toogle.getUuid().toString();
             }else if (property.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE)) {
@@ -523,6 +586,4 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         return propertyList;
     }*/
-
-
 }

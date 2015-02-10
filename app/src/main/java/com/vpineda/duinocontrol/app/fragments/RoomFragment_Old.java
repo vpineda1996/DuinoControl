@@ -8,16 +8,19 @@ import android.widget.ListView;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.classes.model.Server;
+import com.vpineda.duinocontrol.app.classes.model.toggles.Lights;
+import com.vpineda.duinocontrol.app.classes.model.toggles.Toggle;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by vpineda1996 on 2015-01-13.
  */
-public class RoomFragment extends Fragment {
+public class RoomFragment_Old extends Fragment {
 
     private Room mRoom;
     private int mRoomSelectedFromList;
@@ -26,7 +29,7 @@ public class RoomFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.room_fragment,container,false);
+        return inflater.inflate(R.layout.room_fragment_old,container,false);
     }
 
     @Override
@@ -46,7 +49,7 @@ public class RoomFragment extends Fragment {
     private Room getRoomWithIndex() {
         //todo
         List<Room> rooms = new ArrayList<>();
-        rooms.add(new Room("hello"));
+        rooms.add(new Room("hello",getActivity()));
         return rooms.get(mRoomSelectedFromList);
     }
 
@@ -56,13 +59,25 @@ public class RoomFragment extends Fragment {
             public void run() {
                 helper = new DbHelper(getActivity());
                 List<Server> servers = helper.getAllServers();
-                helper.addServer(new Server("Test "+ String.valueOf(servers.size()), URI.create("http://vmpg.tk")));
-                servers = helper.getAllServers();
                 for (Server s : servers) {
                     System.out.println(s.getName());
                 }
+
+                Room room = new Room("Test", getActivity());
+                List<UUID> rooms = new ArrayList<>();
+                rooms.add(room.getUuid());
+                Server server = new Server("123",URI.create("http://google.com"));
+                helper.addServer(server);
+                helper.addRoom(room);
+                helper.addToggle(new Lights("ToggleTest",server,rooms));
+                List<Toggle> toggles = helper.getAllRoomToggles(room.getUuid());
+                for (Toggle t : toggles){
+                    System.out.println("Toggle UUID:" + t.getUuid().toString());
+                    System.out.println("Server UUID:" + t.getServer().getUuid().toString());
+                }
+                helper.getAllRooms();
             }
-        });
+        }).run();
 
     }
 

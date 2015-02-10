@@ -17,7 +17,6 @@ public final class DbContract {
         public static final String ROOM_TABLE_NAME = "room_table";
         public static final String COLUMN_ROOM_UUID = "uuid";
         public static final String COLUMN_ROOM_TITLE = "title";
-        public static final String COLUMN_ROOM_TOGGLES = "toggles";
 
     }
 
@@ -45,8 +44,7 @@ public final class DbContract {
             "CREATE TABLE " + RoomEntry.ROOM_TABLE_NAME + " (" +
                     RoomEntry._ID + " INTEGER PRIMARY KEY," +
                     RoomEntry.COLUMN_ROOM_UUID + TEXT_TYPE + COMMA_SEP +
-                    RoomEntry.COLUMN_ROOM_TITLE + TEXT_TYPE + COMMA_SEP +
-                    RoomEntry.COLUMN_ROOM_TOGGLES + TEXT_TYPE + " )";
+                    RoomEntry.COLUMN_ROOM_TITLE + TEXT_TYPE + " )";
 
     public static final String SQL_CREATE_TABLE_TOGGLE =
             "CREATE TABLE " + ToggleEntry.TOGGLE_TABLE_NAME + " (" +
@@ -54,6 +52,7 @@ public final class DbContract {
                     ToggleEntry.COLUMN_TOGGLE_UUID + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_TITLE + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_TYPE + TEXT_TYPE + COMMA_SEP +
+                    ToggleEntry.COLUMN_TOGGLE_ROOM_UUID + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_SERVER_UUID + TEXT_TYPE + " )";
 
     public static final String SQL_DELETE_SERVERS_TABLE =

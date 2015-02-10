@@ -15,9 +15,16 @@ import android.widget.Toast;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.adapters.DrawerAdapter;
 import com.vpineda.duinocontrol.app.classes.model.Room;
+import com.vpineda.duinocontrol.app.classes.model.Server;
+import com.vpineda.duinocontrol.app.classes.model.toggles.Lights;
+import com.vpineda.duinocontrol.app.classes.model.toggles.Toggle;
+import com.vpineda.duinocontrol.app.classes.ui.fragments.RoomFragment;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by vpineda1996 on 2015-01-16.
@@ -90,7 +97,7 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragmnet_navigation_drawer,container);
+        return inflater.inflate(R.layout.fragmnet_navigation_drawer_old,container);
     }
 
     public void getData(){
@@ -130,10 +137,23 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
 
     public void selectItem(int position) {
         // update the main content by replacing fragments
-        Bundle bundle = new Bundle();
-        bundle.putInt("roomID",position);
         RoomFragment fragment = new RoomFragment();
-        fragment.setArguments(bundle);
+        Room r = new Room("name",getActivity());
+        DbHelper helper = new DbHelper(getActivity());
+
+        List<UUID> rooms = new ArrayList<>();
+        rooms.add(r.getUuid());
+        Server server = new Server("123", URI.create("http://google.com"));
+        helper.addServer(server);
+        helper.addToggle(new Lights("ToggleTest",server,rooms));
+        helper.addToggle(new Lights("ToggleTest",server,rooms));
+        helper.addToggle(new Lights("ToggleTest",server,rooms));
+        helper.addToggle(new Lights("ToggleTest",server,rooms));
+
+
+        helper.close();
+        fragment.newInstance(r);
+
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -142,7 +162,7 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
 
         // update selected item title, then close the drawer
         //setTitle(rooms.get(position).getName());
-        Log.i("test",String.valueOf(position));
+        Log.i("Fragment Position",String.valueOf(position));
         mDrawerLayout.closeDrawer(getView());
     }
 
