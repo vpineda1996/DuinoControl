@@ -145,10 +145,10 @@ public class NavigationalDrawerFragment extends Fragment implements DrawerAdapte
         rooms.add(r.getUuid());
         Server server = new Server("123", URI.create("http://google.com"));
         helper.addServer(server);
-        helper.addToggle(new Lights("ToggleTest",server,rooms));
-        helper.addToggle(new Lights("ToggleTest",server,rooms));
-        helper.addToggle(new Lights("ToggleTest",server,rooms));
-        helper.addToggle(new Lights("ToggleTest",server,rooms));
+        helper.addToggle(new Lights("ToggleTest",13,server,rooms));
+        helper.addToggle(new Lights("ToggleTest",12,server,rooms));
+        helper.addToggle(new Lights("ToggleTest",11,server,rooms));
+        helper.addToggle(new Lights("ToggleTest",13,server,rooms));
 
 
         helper.close();

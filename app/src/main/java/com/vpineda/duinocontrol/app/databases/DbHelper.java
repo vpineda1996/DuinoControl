@@ -432,6 +432,7 @@ public class DbHelper extends SQLiteOpenHelper {
         values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE, toggle.getName());
         values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_UUID, toggle.getUuid().toString());
         values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE, toggle.getType().toString());
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_PIN, toggle.getPin());
         values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID, toggle.getRoomsUUIDAsJSON().toString());
         values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID, toggle.getServer().getUuid().toString());
 
@@ -452,16 +453,15 @@ public class DbHelper extends SQLiteOpenHelper {
     public List<Toggle> getAllRoomToggles (UUID roomID){
         ArrayList<Toggle> toggles = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
-        //TODO
         String[] projection = {
                 DbContract.ServerEntry._ID,
-                DbContract.RoomEntry.COLUMN_ROOM_TITLE,
-                DbContract.RoomEntry.COLUMN_ROOM_UUID,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_UUID,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_PIN,
                 DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE,
                 DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID,
                 DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID
         };
-
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
@@ -481,9 +481,10 @@ public class DbHelper extends SQLiteOpenHelper {
         );
         boolean hasVal = c.moveToFirst();
         while (hasVal){
-            String title, uuid, roomUUID, serverUUID ;
             ToggleTypes toggleType =
                     ToggleTypes.valueOf(c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE)));
+            int pin = c.getInt(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_PIN));
+            String title, uuid, roomUUID, serverUUID ;
             title = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_TITLE));
             uuid = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_UUID));
             roomUUID = c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID));
@@ -491,6 +492,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
             toggles.add(toggleType.getToggleObject(UUID.fromString(uuid),
                     title,
+                    pin,
                     getServer(serverUUID),
                     Toggle.getRoomsUUIDListFromRoomJSON(roomUUID)));
             hasVal = c.moveToNext();

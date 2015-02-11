@@ -1,6 +1,7 @@
 package com.vpineda.duinocontrol.app.databases;
 
 import android.provider.BaseColumns;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 
 /**
  * Created by vpineda1996 on 2015-01-31.
@@ -24,12 +25,14 @@ public final class DbContract {
         public static final String TOGGLE_TABLE_NAME = "toggle_table";
         public static final String COLUMN_TOGGLE_UUID = "uuid";
         public static final String COLUMN_TOGGLE_TITLE = "title";
+        public static final String COLUMN_TOGGLE_PIN = "pin";
         public static final String COLUMN_TOGGLE_TYPE = "type";
         public static final String COLUMN_TOGGLE_ROOM_UUID = "room_uuid";
         public static final String COLUMN_TOGGLE_SERVER_UUID = "server_uuid";
 
     }
     private static final String TEXT_TYPE = " TEXT";
+    private static final String INT_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
 
 
@@ -51,6 +54,7 @@ public final class DbContract {
                     ToggleEntry._ID + " INTEGER PRIMARY KEY," +
                     ToggleEntry.COLUMN_TOGGLE_UUID + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_TITLE + TEXT_TYPE + COMMA_SEP +
+                    ToggleEntry.COLUMN_TOGGLE_PIN + INT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_TYPE + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_ROOM_UUID + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_SERVER_UUID + TEXT_TYPE + " )";

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.classes.ui.adapters.ToggleAdapter;
+import com.vpineda.duinocontrol.app.networking.Commands;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +25,8 @@ public abstract class Toggle {
     private Server server;
     private ToggleTypes type;
     private List<UUID> roomsUUID;
+    private View view;
+    private int pin;
 
     // TODO: implement servos and IR
 
@@ -33,15 +36,16 @@ public abstract class Toggle {
      * =====================================
      */
 
-    public Toggle (UUID id, String name, Server server, ToggleTypes type, List<UUID> roomsUUID) {
+    public Toggle (UUID id, String name, int pin, Server server, ToggleTypes type, List<UUID> roomsUUID) {
         this.uuid = id;
         this.name = name;
+        this.pin = pin;
         this.server = server;
         this.type = type;
         this.roomsUUID = roomsUUID;
     }
-    public Toggle (String name, Server server, ToggleTypes type, List<UUID> roomsUUID){
-        this(UUID.randomUUID(),name, server, type, roomsUUID);
+    public Toggle (String name, int pin, Server server, ToggleTypes type, List<UUID> roomsUUID){
+        this(UUID.randomUUID(),name, pin, server, type, roomsUUID);
     }
 
     /**
@@ -57,11 +61,37 @@ public abstract class Toggle {
      * @param viewHolder view holder in the RecyclerView of toggles
      * @param position position of the listener
      */
-    public abstract void setListeners(ToggleAdapter.ToggleRecycleViewViewHolder viewHolder, final int position);
-    //public abstract void updateState();
-    public abstract JSONObject getJSONMessage();
-    public void sendJSONMessage(){
-        getJSONMessage();
+    public void setListeners(ToggleAdapter.ToggleRecycleViewViewHolder viewHolder, final int position){
+        view =viewHolder.getView();
+    }
+
+    /**
+     * Creates the message that will be sent to the server
+     * @return the jsonobject that will be sent
+     */
+    protected abstract JSONObject getJSONMessage(Commands typeOfMessage);
+
+    /**
+     * Changes the state of the toggle
+     * @param state the integer of the current state
+     *              it can go from 0 to 255 but there is a special case
+     *              where it can be -1 that means the opposite of the current value
+     *              (useful for booleans)
+     */
+    protected abstract void changeToggleState(int state);
+
+    /**
+     * Sends the message to the server and then returns the response from the server
+     * @return the response from the server as a JSON object if the response
+     *         is in JSON otherwise it returns null.
+     */
+    public JSONObject sendJSONMessage(Commands typeOfMessage){
+        try {
+            return server.sendCommand(getJSONMessage(typeOfMessage));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -98,10 +128,26 @@ public abstract class Toggle {
         this.type = type;
     }
 
+    public int getPin() {
+        return pin;
+    }
+
+    public void setPin(int pin) {
+        this.pin = pin;
+    }
+
+    protected View getToggleView() {
+        return view;
+    }
+
     public List<UUID> getRoomsUUID() {
         return roomsUUID;
     }
 
+    /**
+     * Method regarding saving rooms in the database
+     * @return the JSON array containing the UUID of the room
+     */
     public JSONArray getRoomsUUIDAsJSON() {
         JSONArray array = new JSONArray();
         for (UUID roomID : roomsUUID){
@@ -109,6 +155,12 @@ public abstract class Toggle {
         }
         return array;
     }
+
+    /**
+     * Parse the json from the database and return the list of Rooms
+     * @param jsonArrayAsString string from the server
+     * @return the list of roomUUID
+     */
     public static List<UUID> getRoomsUUIDListFromRoomJSON(String jsonArrayAsString){
         List<UUID> rooms = null;
         try {

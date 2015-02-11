@@ -14,10 +14,8 @@ public enum Commands {
         this.command = command;
     }
 
-    public String getCommand() {
-        if (command <= 9 ){
-            return "0" + String.valueOf(command);
-        }else return String.valueOf(command);
+    public int getCommand() {
+        return command;
     }
 }
 //switch(cmdid) {

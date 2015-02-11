@@ -26,14 +26,15 @@ public enum ToggleTypes {
      * every time we add a new ToggleType, we need to add a case ont the switch
      * @param uuid
      * @param name
+     * @param pin
      * @param server
      * @param roomUUID
-     * @return returns the new toggle
+     * @return the toggle object or null
      */
-    public Toggle getToggleObject(UUID uuid, String name, Server server, List<UUID> roomUUID){
+    public Toggle getToggleObject(UUID uuid, String name, int pin, Server server, List<UUID> roomUUID){
         switch (this){
             case LIGHTS:
-                return new Lights(uuid,name,server,roomUUID);
+                return new Lights(uuid,name, pin,server,roomUUID);
         }
         return null;
     }

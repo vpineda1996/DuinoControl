@@ -69,7 +69,7 @@ public class RoomFragment_Old extends Fragment {
                 Server server = new Server("123",URI.create("http://google.com"));
                 helper.addServer(server);
                 helper.addRoom(room);
-                helper.addToggle(new Lights("ToggleTest",server,rooms));
+                helper.addToggle(new Lights("ToggleTest",1,server,rooms));
                 List<Toggle> toggles = helper.getAllRoomToggles(room.getUuid());
                 for (Toggle t : toggles){
                     System.out.println("Toggle UUID:" + t.getUuid().toString());

@@ -1,5 +1,6 @@
 package com.vpineda.duinocontrol.app.classes.model.toggles;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,8 @@ import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.classes.ui.adapters.ToggleAdapter;
+import com.vpineda.duinocontrol.app.networking.Commands;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -16,7 +19,7 @@ import java.util.UUID;
  * Created by vpineda1996 on 2015-02-07.
  */
 public class Lights extends Toggle {
-    private boolean value;
+    private boolean value = false;
 
     /**
      * =====================================
@@ -24,40 +27,101 @@ public class Lights extends Toggle {
      * =====================================
      */
 
-    public Lights(UUID id, String name, Server server, List<UUID> roomUUID) {
-        super(id, name, server, ToggleTypes.LIGHTS, roomUUID);
+    public Lights(UUID id, String name, int pin, Server server, List<UUID> roomUUID) {
+        super(id, name, pin, server, ToggleTypes.LIGHTS, roomUUID);
     }
 
-    public Lights(String name, Server server, List<UUID> roomUUID) {
-        super(name, server, ToggleTypes.LIGHTS,roomUUID);
+    public Lights(String name, int pin, Server server, List<UUID> roomUUID) {
+        super(name, pin, server, ToggleTypes.LIGHTS,roomUUID);
     }
 
     /**
-     * REQUIRES: a valid viewgroup and a layout inflater
-     * EFFECTS: creates a view of a specific class
+     * Setup the view for this specific Toggle
+     * @param viewGroup view group of the RecyclerView
+     * @param inflater inflater to inflate the xml file
+     * @return the view of the inflated toggle
      */
-
     @Override
     public View getView(ViewGroup viewGroup, LayoutInflater inflater) {
         //TODO: Maybe create a preference where we can modify the height, color, etc of this view
         return inflater.inflate(R.layout.classes_mode_toggles_lights,viewGroup,false);
     }
 
+    /**
+     * Method that the RecyclerView calls when the view has been created
+     * here we set the listeners in the UI.
+     * @param viewHolder view holder in the RecyclerView of toggles
+     * @param position position of the listener
+     */
     @Override
-    public void setListeners(ToggleAdapter.ToggleRecycleViewViewHolder viewHolder, int position) {
+    public void setListeners(final ToggleAdapter.ToggleRecycleViewViewHolder viewHolder, int position) {
         //TODO
+        super.setListeners(viewHolder,position);
         viewHolder.getView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendJSONMessage();
-                //TODO
+                changeToggleState(-1);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateTheView(sendJSONMessage(Commands.DIGITAL_WRITE));
+                    }
+                }).run();
             }
         });
     }
 
+    private void updateTheView(JSONObject response) {
+        if(value){
+            getToggleView().setBackgroundColor(getToggleView().getResources().getColor(R.color.cardview_dark_background));
+        }else{
+            getToggleView().setBackgroundColor(getToggleView().getResources().getColor(R.color.cardview_light_background));
+        }
+    }
+
+    /**
+     * Create the message to send to the server
+     * @param typeOfMessage this indicates what type of message does the
+     *                      user wants, depending on it, this method will create it
+     * @return the message that will be sent
+     */
     @Override
-    public JSONObject getJSONMessage() {
-        //TODO
+    protected JSONObject getJSONMessage(Commands typeOfMessage) {
+        try {
+            JSONObject message = new JSONObject();
+            switch (typeOfMessage){
+                case DIGITAL_WRITE:
+                    message.put("command", typeOfMessage.getCommand());
+                    message.put("pin", getPin());
+                    if (value){
+                        message.put("value",1);
+                    }else {
+                        message.put("value",0);
+                    }
+                    return message;
+                default:
+                    Log.e("JSON","Error generating JSON message");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return null;
+    }
+
+    /**
+     * Change the toggle value
+     * @param state the integer of the current state
+     *              it can go from 0 to 255 but there is a special case
+     *              where it can be -1 that means the opposite of the current value
+     */
+    @Override
+    protected void changeToggleState(int state) {
+        if (state == 0){
+            value = false;
+        }else if(state == -1){
+            value = !value;
+        }else {
+            value = true;
+        }
     }
 }

@@ -43,6 +43,7 @@ public class Room {
     }
 
     /**
+     * Gets the toggles from the database so we can display it to the user
      * @param context
      * @return list of toggle in current room
      */
