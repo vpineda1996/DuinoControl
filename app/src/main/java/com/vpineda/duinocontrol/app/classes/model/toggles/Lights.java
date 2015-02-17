@@ -4,8 +4,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import com.vpineda.duinocontrol.app.R;
-import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.classes.ui.adapters.ToggleAdapter;
 import com.vpineda.duinocontrol.app.networking.Commands;
@@ -42,7 +42,7 @@ public class Lights extends Toggle {
      * @return the view of the inflated toggle
      */
     @Override
-    public View getView(ViewGroup viewGroup, LayoutInflater inflater) {
+    public View getInflatedView(ViewGroup viewGroup, LayoutInflater inflater) {
         //TODO: Maybe create a preference where we can modify the height, color, etc of this view
         return inflater.inflate(R.layout.classes_mode_toggles_lights,viewGroup,false);
     }
@@ -60,23 +60,24 @@ public class Lights extends Toggle {
         viewHolder.getView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeToggleState(-1);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateTheView(sendJSONMessage(Commands.DIGITAL_WRITE));
-                    }
-                }).run();
+                setToggleState(-1);
+                sendJSONMessage(Commands.DIGITAL_WRITE);
             }
         });
     }
 
-    private void updateTheView(JSONObject response) {
-        if(value){
+    @Override
+    public void onServerResponseSuccess(JSONObject response) {
+        Toast.makeText(getToggleView().getContext(),response.toString(),Toast.LENGTH_SHORT).show();
+        if (value)
             getToggleView().setBackgroundColor(getToggleView().getResources().getColor(R.color.cardview_dark_background));
-        }else{
+        else
             getToggleView().setBackgroundColor(getToggleView().getResources().getColor(R.color.cardview_light_background));
-        }
+    }
+
+    @Override
+    public void onServerResponseFailure(Exception e, byte[] response) {
+        Toast.makeText(getToggleView().getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -93,11 +94,7 @@ public class Lights extends Toggle {
                 case DIGITAL_WRITE:
                     message.put("command", typeOfMessage.getCommand());
                     message.put("pin", getPin());
-                    if (value){
-                        message.put("value",1);
-                    }else {
-                        message.put("value",0);
-                    }
+                    message.put("value", value ? 1 : 0);
                     return message;
                 default:
                     Log.e("JSON","Error generating JSON message");
@@ -115,7 +112,7 @@ public class Lights extends Toggle {
      *              where it can be -1 that means the opposite of the current value
      */
     @Override
-    protected void changeToggleState(int state) {
+    protected void setToggleState(int state) {
         if (state == 0){
             value = false;
         }else if(state == -1){

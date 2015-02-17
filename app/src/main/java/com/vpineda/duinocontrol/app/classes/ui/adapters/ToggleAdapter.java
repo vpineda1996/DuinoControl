@@ -2,13 +2,9 @@ package com.vpineda.duinocontrol.app.classes.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.toggles.Toggle;
 
 import java.util.Collections;
@@ -40,14 +36,14 @@ public class ToggleAdapter extends RecyclerView.Adapter<ToggleAdapter.ToggleRecy
      */
     @Override
     public ToggleRecycleViewViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
-        View view = data.get(position).getView(viewGroup,inflater);
+        View view = data.get(position).getInflatedView(viewGroup, inflater);
         return new ToggleRecycleViewViewHolder(view);
     }
 
     /**
      * Sends the current view to the toggle, then the toggle puts the listeners
      * and the finds the required views from the viewHolder by using
-     * viewHolder.getView()
+     * viewHolder.getInflatedView()
      * @param viewHolder viewHolder of a specific item on the list
      * @param position current position in the list of the element
      */

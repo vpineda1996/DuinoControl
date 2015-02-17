@@ -286,7 +286,7 @@ public class DbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
 
         String[] projection = {
-                DbContract.ServerEntry._ID,
+                DbContract.RoomEntry._ID,
                 DbContract.RoomEntry.COLUMN_ROOM_TITLE,
                 DbContract.RoomEntry.COLUMN_ROOM_UUID
         };
@@ -315,6 +315,48 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         db.close();
         return rooms;
+    }
+
+    /**
+     * gets all of the rooms in the database
+     * @return the room from index
+     */
+    public Room getRoom(UUID roomUUID){
+        Room room = null;
+        SQLiteDatabase db = getReadableDatabase();
+
+        String[] projection = {
+                DbContract.RoomEntry._ID,
+                DbContract.RoomEntry.COLUMN_ROOM_TITLE,
+                DbContract.RoomEntry.COLUMN_ROOM_UUID
+        };
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder =
+                DbContract.RoomEntry._ID + " DESC";
+        String selection = DbContract.RoomEntry.COLUMN_ROOM_UUID + " LIKE ?";
+        String[] selectionArgs = {roomUUID.toString()};
+
+        Cursor c = db.query(
+                DbContract.RoomEntry.ROOM_TABLE_NAME,    // The table to query
+                projection,                               // The columns to return
+                selection,                                     // The columns for the WHERE clause
+                selectionArgs,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        boolean hasVal = c.moveToFirst();
+
+        while (hasVal){
+            String title = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_TITLE));
+            UUID id = UUID.fromString(c.getString(c.getColumnIndex(DbContract.RoomEntry.COLUMN_ROOM_UUID)));
+            room = new Room(id,title,getAllRoomToggles(id));
+            hasVal = c.moveToNext();
+        }
+        db.close();
+        return room;
     }
 
     /**
@@ -407,6 +449,7 @@ public class DbHelper extends SQLiteOpenHelper {
             } else if (property.equals(DbContract.RoomEntry.COLUMN_ROOM_TITLE)) {
                 propertyList.add(0,c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_TITLE)));
             }
+            hasVal = c.moveToNext();
         }
         db.close();
         return propertyList;

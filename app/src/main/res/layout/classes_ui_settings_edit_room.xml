@@ -14,5 +14,5 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:id="@+id/nameOfRoomEditText"/>
+            android:id="@+id/ui_settings_edit_room_EditText"/>
 </LinearLayout>

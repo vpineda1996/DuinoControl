@@ -15,7 +15,8 @@ import java.util.UUID;
  * the program can know that it exists
  */
 public enum ToggleTypes {
-    LIGHTS;
+    LIGHTS,
+    DIMMABLE_LED;
 
 
     ToggleTypes(){
@@ -35,6 +36,8 @@ public enum ToggleTypes {
         switch (this){
             case LIGHTS:
                 return new Lights(uuid,name, pin,server,roomUUID);
+            case DIMMABLE_LED:
+                return new DimmableLight(uuid, name, pin, server, roomUUID);
         }
         return null;
     }

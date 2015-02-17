@@ -30,8 +30,8 @@
                 android:layout_width="280dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
-                app:layout="@layout/fragmnet_navigation_drawer_old"
-                android:name="com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment"
-                tools:layout="@layout/fragmnet_navigation_drawer_old"
+                app:layout="@layout/classes_ui_fragments_navigational_drawer"
+                android:name="com.vpineda.duinocontrol.app.classes.ui.fragments.NavigationalDrawerFragment"
+                tools:layout="@layout/classes_ui_fragments_navigational_drawer"
                 android:id="@+id/left_drawer"/>
 </android.support.v4.widget.DrawerLayout>

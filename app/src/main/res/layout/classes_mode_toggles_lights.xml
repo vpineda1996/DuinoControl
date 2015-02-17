@@ -6,7 +6,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_margin="5dp"
-        app:cardBackgroundColor="@color/cardview_light_background">
+        app:cardBackgroundColor="@color/cardview_light_background"
+        android:foreground="?android:attr/selectableItemBackground">
 
     <TextView
             android:layout_width="match_parent"

@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import java.util.UUID;
 /**
  * Created by Victor on 2/3/2015.
  */
-public abstract class Toggle {
+public abstract class Toggle implements Server.OnResponseListener{
     private UUID uuid;
     private String name;
     private Server server;
@@ -54,7 +55,7 @@ public abstract class Toggle {
      * @param inflater inflater to inflate the xml file
      * @return the current view of the toggle
      */
-    public abstract View getView(ViewGroup viewGroup,LayoutInflater inflater);
+    public abstract View getInflatedView(ViewGroup viewGroup, LayoutInflater inflater);
 
     /**
      * Set listeners for that special item toggle
@@ -78,27 +79,58 @@ public abstract class Toggle {
      *              where it can be -1 that means the opposite of the current value
      *              (useful for booleans)
      */
-    protected abstract void changeToggleState(int state);
+    protected abstract void setToggleState(int state);
 
     /**
      * Sends the message to the server and then returns the response from the server
-     * @return the response from the server as a JSON object if the response
-     *         is in JSON otherwise it returns null.
+     * @param typeOfMessage one of the commands that are in Commands section
      */
-    public JSONObject sendJSONMessage(Commands typeOfMessage){
+    public void sendJSONMessage(Commands typeOfMessage){
         try {
-            return server.sendCommand(getJSONMessage(typeOfMessage));
-        } catch (JSONException e) {
-            e.printStackTrace();
+            server.sendCommand(getJSONMessage(typeOfMessage), this);
+        } catch (UnsupportedEncodingException e) {
+            Log.e("JSON", "Genereated JSONMessage doesn't make sense");
         }
-        return null;
     }
-
-    /**
+/**
      * =====================================
      * ======GETTERS AND SETTERS============
      * =====================================
      */
+
+    /**
+     * Method regarding saving rooms in the database
+     * @return the JSON array containing the UUID of the room
+     */
+    public JSONArray getRoomsUUIDAsJSON() {
+        JSONArray array = new JSONArray();
+        for (UUID roomID : roomsUUID){
+            array.put(roomID.toString());
+        }
+        return array;
+    }
+
+    /**
+     * Parse the json from the database and return the list of Rooms
+     * @param jsonArrayAsString string from the server
+     * @return the list of roomUUID
+     */
+    public static List<UUID> getRoomsUUIDListFromRoomJSON(String jsonArrayAsString){
+        List<UUID> rooms = null;
+        try {
+            // First decode the JSONArray that is given to you
+            // if it isn't fallback to catch thus throwing null
+            JSONArray jsonArray = new JSONArray(jsonArrayAsString);
+            rooms = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++){
+                rooms.add(UUID.fromString(jsonArray.getString(i)));
+            }
+        } catch (JSONException e) {
+            Log.e("jsonParsing", "Error parsing JSON from database");
+            e.printStackTrace();
+        }
+        return rooms;
+    }
 
     public UUID getUuid() {
         return uuid;
@@ -142,39 +174,5 @@ public abstract class Toggle {
 
     public List<UUID> getRoomsUUID() {
         return roomsUUID;
-    }
-
-    /**
-     * Method regarding saving rooms in the database
-     * @return the JSON array containing the UUID of the room
-     */
-    public JSONArray getRoomsUUIDAsJSON() {
-        JSONArray array = new JSONArray();
-        for (UUID roomID : roomsUUID){
-            array.put(roomID.toString());
-        }
-        return array;
-    }
-
-    /**
-     * Parse the json from the database and return the list of Rooms
-     * @param jsonArrayAsString string from the server
-     * @return the list of roomUUID
-     */
-    public static List<UUID> getRoomsUUIDListFromRoomJSON(String jsonArrayAsString){
-        List<UUID> rooms = null;
-        try {
-            // First decode the JSONArray that is given to you
-            // if it isn't fallback to catch thus throwing null
-            JSONArray jsonArray = new JSONArray(jsonArrayAsString);
-            rooms = new ArrayList<>();
-            for (int i = 0; i < jsonArray.length(); i++){
-                rooms.add(UUID.fromString(jsonArray.getString(i)));
-            }
-        } catch (JSONException e) {
-            Log.e("jsonParsing", "Error parsing JSON from database");
-            e.printStackTrace();
-        }
-        return rooms;
     }
 }

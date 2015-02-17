@@ -1,7 +1,6 @@
 package com.vpineda.duinocontrol.app.databases;
 
 import android.provider.BaseColumns;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 
 /**
  * Created by vpineda1996 on 2015-01-31.

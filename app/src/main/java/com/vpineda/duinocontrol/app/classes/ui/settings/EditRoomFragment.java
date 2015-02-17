@@ -1,4 +1,4 @@
-package com.vpineda.duinocontrol.app.settings;
+package com.vpineda.duinocontrol.app.classes.ui.settings;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -8,11 +8,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Room;
+import com.vpineda.duinocontrol.app.databases.DbContract;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
-import com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment;
+import com.vpineda.duinocontrol.app.classes.ui.fragments.NavigationalDrawerFragment;
+
+import java.util.List;
 
 
 /**
@@ -21,9 +25,8 @@ import com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment;
 public class EditRoomFragment extends DialogFragment {
 
     private EditText mEditText;
-    private Room mOldRoom;
+    private String mOldRoom;
     private String mNewRoomName;
-    private DbHelper helper;
     private NavigationalDrawerFragment mDrawer;
 
     public void newInstance(NavigationalDrawerFragment mDrawer){
@@ -40,8 +43,10 @@ public class EditRoomFragment extends DialogFragment {
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
 
-        View view = inflater.inflate(R.layout.edit_room_main_old, null);
-        mEditText = (EditText) view.findViewById(R.id.nameOfRoomEditText);
+        View view = inflater.inflate(R.layout.classes_ui_settings_edit_room,
+                (ViewGroup) getActivity().getWindow().getDecorView().getRootView());
+        mEditText = (EditText) view.findViewById(R.id.ui_settings_edit_room_EditText);
+        // TODO replace by a resources String
         mEditText.setHint("Name");
 
         builder.setView(view)
@@ -51,13 +56,14 @@ public class EditRoomFragment extends DialogFragment {
                         // read the string in EditText if it is empty if it is dont do anything
                         // otherwise check of we have initialized mOldRoom
                         // if we have update that room otherwise create a new one
+                        DbHelper helper = new DbHelper(getActivity());
                         mNewRoomName = mEditText.getText().toString();
                         if (mOldRoom == null && !(mNewRoomName.equals(""))) {
-//                            helper.addRoom(new Room(mNewRoomName));
+                            helper.addRoom(new Room(mNewRoomName,getActivity()));
                         } else if (!(mNewRoomName.equals(""))) {
-//                            helper.updateRoom(mOldRoom, DbContract.RoomEntry.COLUMN_ROOM_TITLE, mNewRoomName);
+                            //helper.updateRoom();
                         }
-                        mDrawer.getData();
+                        mDrawer.getDataFromDatabase();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -73,14 +79,13 @@ public class EditRoomFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // activate the database helper
-        helper = new DbHelper(getActivity());
-
         // if opened from a room option menu add add that room to mOldRoom
         if(getArguments() != null){
             int pos = getArguments().getInt("add_room");
-//            List<Room> rooms = helper.getAllRooms();
-//            mOldRoom = rooms.get(pos);
+            DbHelper helper = new DbHelper(getActivity());
+            List<String> rooms = helper.getAllRoomsProperty(DbContract.RoomEntry.COLUMN_ROOM_TITLE);
+            mOldRoom = rooms.get(pos);
         }
     }
+
 }
