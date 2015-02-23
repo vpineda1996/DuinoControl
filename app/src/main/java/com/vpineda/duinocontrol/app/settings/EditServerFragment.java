@@ -2,7 +2,9 @@ package com.vpineda.duinocontrol.app.settings;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +20,10 @@ import java.util.List;
 /**
  * Created by vpineda1996 on 2015-01-11.
  */
-public class EditServerFragment extends Fragment {
+public class EditServerFragment extends DialogFragment {
 
     private int clickPos;
-    private String CLICK_BUNDLE_POSITION_KEY = "click_pos";
+    public static String CLICK_BUNDLE_POSITION_KEY = "click_pos";
     private boolean updating = false; // tells which method it will use to update
                                       // or create entries
     private EditText name, hostname, port, path;
@@ -29,6 +31,18 @@ public class EditServerFragment extends Fragment {
     private Spinner protocol;
     private Server selectedServer;
 
+
+    public static EditServerFragment newInstance(@Nullable Integer allServersListClickedPosition){
+        EditServerFragment esf = new EditServerFragment();
+
+        // Setup bundle
+        if(allServersListClickedPosition != null){
+            Bundle b = new Bundle();
+            b.putInt(CLICK_BUNDLE_POSITION_KEY,allServersListClickedPosition);
+            esf.setArguments(b);
+        }
+        return esf;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +55,12 @@ public class EditServerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.edit_server_main_old, container, false);
+        name = (EditText) view.findViewById(R.id.server_tittle_editText);
+        hostname = (EditText) view.findViewById(R.id.server_hostname_editText);
+        port = (EditText) view.findViewById(R.id.server_port_editText);
+        path = (EditText) view.findViewById(R.id.server_path_editText);
+        protocol = (Spinner) getActivity().findViewById(R.id.server_protocol_spinner);
+
         return view;
     }
 
@@ -49,41 +69,34 @@ public class EditServerFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         // get all servers
-        final DbHelper dbHelper = new DbHelper(getActivity());
+        DbHelper dbHelper = new DbHelper(getActivity());
         List<Server> listServers= dbHelper.getAllServers();
 
         //start all the listeners in prefs and add the listener to the button
-        name = (EditText) getActivity().findViewById(R.id.server_tittle_editText);
-        hostname = (EditText) getActivity().findViewById(R.id.server_hostname_editText);
-        port = (EditText) getActivity().findViewById(R.id.server_port_editText);
-        path = (EditText) getActivity().findViewById(R.id.server_path_editText);
-
-        protocol = (Spinner) getActivity().findViewById(R.id.server_protocol_spinner);
-        SpinnerAdapter spinnerAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                str);
-        protocol.setAdapter(spinnerAdapter);
-
-        Button button = (Button) getActivity().findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!updating) {
-                    // save new entry
-                    try {
-                        Server newServer = new Server(
-                                name.getText().toString(),URI.create(protocol.toString() +
-                                        hostname.getText().toString() +
-                                        port.getText().toString() +
-                                        path.getText().toString()
-                        ));
-                        dbHelper.addServer(newServer);
-                    }catch (Exception e){
-
-                    }
-                }else{
-                    // update entry
+//        SpinnerAdapter spinnerAdapter = new ArrayAdapter<>(
+//                getActivity(),
+//                android.R.layout.simple_list_item_1,
+//                str);
+//        protocol.setAdapter(spinnerAdapter);
+//        Button button = (Button) getActivity().findViewById(R.id.button);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(!updating) {
+//                    // save new entry
+//                    try {
+//                        Server newServer = new Server(
+//                                name.getText().toString(),URI.create(protocol.toString() +
+//                                        hostname.getText().toString() +
+//                                        port.getText().toString() +
+//                                        path.getText().toString()
+//                        ));
+//                        dbHelper.addServer(newServer);
+//                    }catch (Exception e){
+//
+//                    }
+//                }else{
+//                    //update entry
 //                    try {
 //                        if (!(name.getText().toString().equals(selectedServer.getName()))) {
 //                            dbHelper.updateServer(
@@ -117,17 +130,17 @@ public class EditServerFragment extends Fragment {
 //                        }
 //                    }catch (Exception e){
 //                    }
-                }
-                getFragmentManager().popBackStack();
-            }
-        });
-
-        if(getArguments()!= null) {
-            updating = true;
-            clickPos = getArguments().getInt(CLICK_BUNDLE_POSITION_KEY);
-            selectedServer = listServers.get(clickPos);
-            showSelectedServerOptions(selectedServer);
-        }
+//                }
+//                getFragmentManager().popBackStack();
+//            }
+//        });
+//
+//        if(getArguments()!= null) {
+//            updating = true;
+//            clickPos = getArguments().getInt(CLICK_BUNDLE_POSITION_KEY);
+//            selectedServer = listServers.get(clickPos);
+//            showSelectedServerOptions(selectedServer);
+//        }
 
     }
 
@@ -137,5 +150,12 @@ public class EditServerFragment extends Fragment {
 //        protocol.setSelection(selectedServer.getProtocol());
 //        port.setText(String.valueOf(selectedServer.getPort()));
 //        path.setText(selectedServer.getPath());
+    }
+
+    public void showAndSaveStackDialog(FragmentManager fragmentManager){
+        fragmentManager.beginTransaction()
+                .addToBackStack("EditServerFragment")
+                .add(this,"editServerFragment")
+                .commit();
     }
 }

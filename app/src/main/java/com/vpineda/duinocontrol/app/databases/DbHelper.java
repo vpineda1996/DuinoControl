@@ -10,6 +10,7 @@ import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.classes.model.toggles.Toggle;
 import com.vpineda.duinocontrol.app.classes.model.toggles.ToggleTypes;
+import org.json.JSONArray;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -484,6 +485,22 @@ public class DbHelper extends SQLiteOpenHelper {
                 null,
                 values);
     }
+    public long addToggle (String name, String toggleUUID, ToggleTypes toggleType, int pin,  List<UUID> roomUUIDS, String serverUUID){
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE, name);
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_UUID, toggleUUID);
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE, toggleType.toString());
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_PIN, pin);
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID, Toggle.getRoomsUUIDAsJSON(roomUUIDS).toString());
+        values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID, serverUUID.toString());
+
+        return db.insert(
+                DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
+                null,
+                values);
+    }
 
     /**
      * Returns the list of toggles of with all of their characteristics
@@ -548,6 +565,57 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Gets all of the toggles from the database
+     * @return
+     */
+    public List<Toggle> getAllToggles (){
+        ArrayList<Toggle> toggles = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        String[] projection = {
+                DbContract.ServerEntry._ID,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_UUID,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_PIN,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID,
+                DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID
+        };
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder =
+                DbContract.ServerEntry._ID + " DESC";
+
+        Cursor c = db.query(
+                DbContract.ToggleEntry.TOGGLE_TABLE_NAME,    // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+        boolean hasVal = c.moveToFirst();
+        while (hasVal){
+            ToggleTypes toggleType =
+                    ToggleTypes.valueOf(c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE)));
+            int pin = c.getInt(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_PIN));
+            String title, uuid, roomUUID, serverUUID ;
+            title = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_TITLE));
+            uuid = c.getString(c.getColumnIndexOrThrow(DbContract.RoomEntry.COLUMN_ROOM_UUID));
+            roomUUID = c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID));
+            serverUUID = c.getString(c.getColumnIndexOrThrow(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID));
+
+            toggles.add(toggleType.getToggleObject(UUID.fromString(uuid),
+                    title,
+                    pin,
+                    getServer(serverUUID),
+                    Toggle.getRoomsUUIDListFromRoomJSON(roomUUID)));
+            hasVal = c.moveToNext();
+        }
+        db.close();
+        return toggles;
+    }
+    /**
      * Removes the toggle from the database
      * @param uuid
      */
@@ -565,44 +633,57 @@ public class DbHelper extends SQLiteOpenHelper {
     public void updateToggle(Toggle toggle, RoomToggle.ToggleType newValue){
         updateToggle(toggle, DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE, newValue.name());
     }
-
-    public void updateToggle(RoomToggle toggle, String updateField, String newValue){
+    */
+    public void updateToggle(String toggleUUID, String updateField, String newValue){
 
         SQLiteDatabase db = getReadableDatabase();
         ContentValues values = new ContentValues();
 
         String selection = DbContract.ToggleEntry.COLUMN_TOGGLE_UUID +" LIKE ?";
-        String[] selectionArgs = { toggle.getUuid().toString() };
+        String[] selectionArgs = { toggleUUID };
 
         try {
-            if (updateField.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE)) {
-                values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE, newValue);
-                db.update(
-                        DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-            } else if(updateField.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE)){
-                values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE, newValue);
-                db.update(
-                        DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-            } else if(updateField.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID)){
-                values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID, newValue);
-                db.update(
-                        DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
-            }else if(updateField.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID)){
-                values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID, newValue);
-                db.update(
-                        DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
-                        values,
-                        selection,
-                        selectionArgs);
+            switch (updateField){
+                case DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE:
+                    values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE, newValue);
+                    db.update(
+                            DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
+                            values,
+                            selection,
+                            selectionArgs);
+                    break;
+                case DbContract.ToggleEntry.COLUMN_TOGGLE_PIN:
+                    values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_PIN, Integer.valueOf(newValue));
+                    db.update(
+                            DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
+                            values,
+                            selection,
+                            selectionArgs);
+                    break;
+                case DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE:
+                    values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE, newValue);
+                    db.update(
+                            DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
+                            values,
+                            selection,
+                            selectionArgs);
+                    break;
+                case DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID:
+                    values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID, newValue);
+                    db.update(
+                            DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
+                            values,
+                            selection,
+                            selectionArgs);
+                    break;
+                case DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID:
+                    values.put(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID, newValue);
+                    db.update(
+                            DbContract.ToggleEntry.TOGGLE_TABLE_NAME,
+                            values,
+                            selection,
+                            selectionArgs);
+                    break;
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -610,25 +691,4 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         db.close();
     }
-    public String[] getAllTogglesPropertyByRoom (String property, UUID roomID) {
-        List<Toggle> toggles = getAllRoomToggles(roomID);
-        String[] propertyList = new String[toggles.size()];
-        for(int i = 0; i < toggles.size(); i++){
-             toogle = toggles.get(i);
-            if (property.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_UUID)) {
-                propertyList[i] = toogle.getUuid().toString();
-            }else if (property.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_TITLE)) {
-                propertyList[i] = toogle.getName();
-            }else if (property.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_TYPE)) {
-                propertyList[i] = toogle.getType().name();
-            }else if (property.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_ROOM_UUID)) {
-                propertyList[i] = toogle.getRoomID().toString();
-            }else if (property.equals(DbContract.ToggleEntry.COLUMN_TOGGLE_SERVER_UUID)) {
-                propertyList[i] = toogle.getServerID().toString();
-            }else if (property.equals(DbContract.ToggleEntry._ID)) {
-                propertyList[i] = String.valueOf(i);
-            }
-        }
-        return propertyList;
-    }*/
 }

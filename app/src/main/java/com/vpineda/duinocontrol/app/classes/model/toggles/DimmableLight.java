@@ -3,6 +3,7 @@ package com.vpineda.duinocontrol.app.classes.model.toggles;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.networking.Commands;
 import org.json.JSONObject;
@@ -24,7 +25,9 @@ public class DimmableLight extends Toggle {
 
     @Override
     public View getInflatedView(ViewGroup viewGroup, LayoutInflater inflater) {
-        return null;
+        View v = inflater.inflate(R.layout.classes_model_toggles_dimmable_lights,viewGroup,false);
+        // Link all of the elements in the view to the code
+        return v;
     }
 
     @Override

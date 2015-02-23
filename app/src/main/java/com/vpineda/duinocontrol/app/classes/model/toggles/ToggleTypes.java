@@ -6,6 +6,7 @@ package com.vpineda.duinocontrol.app.classes.model.toggles;
 
 import com.vpineda.duinocontrol.app.classes.model.Server;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,11 +16,12 @@ import java.util.UUID;
  * the program can know that it exists
  */
 public enum ToggleTypes {
-    LIGHTS,
-    DIMMABLE_LED;
+    LIGHTS ("Lights"),
+    DIMMABLE_LED ("Dimmable LED (PWM)");
 
-
-    ToggleTypes(){
+    private String name;
+    ToggleTypes(String name){
+        this.name = name;
     }
 
     /**
@@ -40,5 +42,12 @@ public enum ToggleTypes {
                 return new DimmableLight(uuid, name, pin, server, roomUUID);
         }
         return null;
+    }
+    public static List<String> getAllToggleNames() {
+        List<String> toggleNames = new ArrayList<>();
+        for (ToggleTypes tg : ToggleTypes.values()){
+            toggleNames.add(tg.name);
+        }
+        return toggleNames;
     }
 }

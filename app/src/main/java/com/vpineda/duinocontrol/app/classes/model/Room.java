@@ -31,12 +31,7 @@ public class Room {
     public Room (UUID id, String name, final Context context) {
         this.uuid = id;
         this.name = name;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                toggles = getTogglesFromDatabase(context);
-            }
-        }).run();
+        toggles = getTogglesFromDatabase(context);
     }
     public Room (String name, Context context){
         this(UUID.randomUUID(),name,context);

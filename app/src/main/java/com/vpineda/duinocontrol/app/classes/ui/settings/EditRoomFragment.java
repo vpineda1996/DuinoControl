@@ -44,7 +44,7 @@ public class EditRoomFragment extends DialogFragment {
         // Pass null as the parent view because its going in the dialog layout
 
         View view = inflater.inflate(R.layout.classes_ui_settings_edit_room,
-                (ViewGroup) getActivity().getWindow().getDecorView().getRootView());
+                (ViewGroup) getActivity().getWindow().getDecorView().getRootView(),false);
         mEditText = (EditText) view.findViewById(R.id.ui_settings_edit_room_EditText);
         // TODO replace by a resources String
         mEditText.setHint("Name");

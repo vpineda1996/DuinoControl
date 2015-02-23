@@ -65,7 +65,7 @@ public class Server{
         se = new StringEntity(message.toString());
         // Configure the response
         se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-        client.setMaxRetriesAndTimeout(0, 3000);
+        client.setMaxRetriesAndTimeout(0, 1000);
         // If a request hasn't been responded ignore it and restart the connection again
         client.cancelAllRequests(true);
         // Send the message

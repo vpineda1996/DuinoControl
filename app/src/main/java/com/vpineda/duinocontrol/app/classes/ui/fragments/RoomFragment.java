@@ -56,7 +56,6 @@ public class RoomFragment extends Fragment {
      * @param view the current view
      */
     private void getTogglesFromDatabase(View view) {
-        // TODO: get list of toggles from database
         toggles = new ArrayList<>();
         // if the newInstance method is called then it will assign the desired room
         // but if it isn't fallback and display the default
@@ -69,7 +68,7 @@ public class RoomFragment extends Fragment {
                     setUpRecyclerView();
                 }else {
                     // TODO save the current instace state so if the user rotates the screen we will be able to restore data
-                    toggles = new ArrayList<>();
+                    toggles = helper.getAllToggles();
                     setUpRecyclerView();
                 }
                 helper.close();

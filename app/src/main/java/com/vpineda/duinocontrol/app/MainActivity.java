@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.vpineda.duinocontrol.app.classes.model.Room;
 import com.vpineda.duinocontrol.app.classes.ui.fragments.NavigationalDrawerFragment;
 import com.vpineda.duinocontrol.app.classes.ui.settings.EditToogleFragment;
 import com.vpineda.duinocontrol.app.settings.MainPreferences;
@@ -57,11 +58,11 @@ public class MainActivity extends ActionBarActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.ui_activites_main_activity_add_toggleButton){
-            UUID roomSelected = mDrawer.getRoomSelected().getUuid()
+            Room roomSelected = mDrawer.getRoomSelected();
             if(roomSelected != null) {
-                EditToogleFragment.newInstance(roomSelected).show(getSupportFragmentManager(), "addToggle");
+                EditToogleFragment.newInstance(roomSelected.getUuid(),null).show(getSupportFragmentManager(), "addToggle");
             }else {
-                EditToogleFragment.newInstance(null).show(getSupportFragmentManager(), "addToggle");
+                EditToogleFragment.newInstance(null,null).show(getSupportFragmentManager(), "addToggle");
             }
         }
         return super.onOptionsItemSelected(item);

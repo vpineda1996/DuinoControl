@@ -37,7 +37,7 @@ public class ToggleAdapter extends RecyclerView.Adapter<ToggleAdapter.ToggleRecy
     @Override
     public ToggleRecycleViewViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
         View view = data.get(position).getInflatedView(viewGroup, inflater);
-        return new ToggleRecycleViewViewHolder(view);
+        return new ToggleRecycleViewViewHolder(view,viewGroup);
     }
 
     /**
@@ -48,7 +48,7 @@ public class ToggleAdapter extends RecyclerView.Adapter<ToggleAdapter.ToggleRecy
      * @param position current position in the list of the element
      */
     @Override
-    public void onBindViewHolder(ToggleRecycleViewViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(ToggleRecycleViewViewHolder viewHolder, int position) {
         Toggle current = data.get(position);
         current.setListeners(viewHolder, position);
     }
@@ -63,13 +63,28 @@ public class ToggleAdapter extends RecyclerView.Adapter<ToggleAdapter.ToggleRecy
 
     public class ToggleRecycleViewViewHolder extends RecyclerView.ViewHolder{
         private View mView;
-        public ToggleRecycleViewViewHolder(View itemView) {
+        private ViewGroup mViewGroup;
+        public ToggleRecycleViewViewHolder(View itemView, ViewGroup viewGroup) {
             super(itemView);
             mView = itemView;
+            this.mViewGroup = viewGroup;
         }
 
         public View getView() {
             return mView;
         }
+
+        public void setView(View mView) {
+            this.mView = mView;
+        }
+
+        public ViewGroup getViewGroup() {
+            return mViewGroup;
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return data.get(position).getType().ordinal();
     }
 }

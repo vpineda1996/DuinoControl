@@ -44,7 +44,7 @@ public class Lights extends Toggle {
     @Override
     public View getInflatedView(ViewGroup viewGroup, LayoutInflater inflater) {
         //TODO: Maybe create a preference where we can modify the height, color, etc of this view
-        return inflater.inflate(R.layout.classes_mode_toggles_lights,viewGroup,false);
+        return inflater.inflate(R.layout.classes_model_toggles_lights,viewGroup,false);
     }
 
     /**

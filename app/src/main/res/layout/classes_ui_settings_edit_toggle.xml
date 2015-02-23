@@ -45,4 +45,20 @@
             android:layout_marginTop="5dp"
             android:layout_marginBottom="2dp"
             android:hint="Toggle"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pin"
+            android:id="@+id/ui_settings_edit_toggle_fragment_pin_textView"
+            android:layout_below="@+id/ui_settings_edit_toggle_fragment_name_editTextView"
+            android:layout_marginTop="5dp"/>
+    <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/ui_settings_edit_toggle_fragment_pin_editTextView"
+            android:layout_below="@+id/ui_settings_edit_toggle_fragment_pin_textView"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="2dp"
+            android:hint="Pin number"
+            android:inputType="number"/>
 </RelativeLayout>

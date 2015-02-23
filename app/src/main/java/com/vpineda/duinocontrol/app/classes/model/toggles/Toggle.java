@@ -109,6 +109,13 @@ public abstract class Toggle implements Server.OnResponseListener{
         }
         return array;
     }
+    public static JSONArray getRoomsUUIDAsJSON(List<UUID> roomsUUIDs) {
+        JSONArray array = new JSONArray();
+        for (UUID roomID : roomsUUIDs){
+            array.put(roomID.toString());
+        }
+        return array;
+    }
 
     /**
      * Parse the json from the database and return the list of Rooms
