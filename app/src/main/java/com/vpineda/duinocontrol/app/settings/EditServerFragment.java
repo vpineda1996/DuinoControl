@@ -11,9 +11,11 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Server;
+import com.vpineda.duinocontrol.app.databases.DbContract;
 import com.vpineda.duinocontrol.app.databases.DbHelper;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class EditServerFragment extends DialogFragment {
     private boolean updating = false; // tells which method it will use to update
                                       // or create entries
     private EditText name, hostname, port, path;
+    Button saveButton;
     private List<String> str;
     private Spinner protocol;
     private Server selectedServer;
@@ -47,7 +50,7 @@ public class EditServerFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+        // Get array that contains the available protocols
         str = Arrays.asList(getResources().getStringArray(R.array.available_protocols));
     }
 
@@ -59,7 +62,8 @@ public class EditServerFragment extends DialogFragment {
         hostname = (EditText) view.findViewById(R.id.server_hostname_editText);
         port = (EditText) view.findViewById(R.id.server_port_editText);
         path = (EditText) view.findViewById(R.id.server_path_editText);
-        protocol = (Spinner) getActivity().findViewById(R.id.server_protocol_spinner);
+        protocol = (Spinner) view.findViewById(R.id.server_protocol_spinner1);
+        saveButton = (Button) view.findViewById(R.id.button);
 
         return view;
     }
@@ -67,89 +71,94 @@ public class EditServerFragment extends DialogFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         // get all servers
         DbHelper dbHelper = new DbHelper(getActivity());
         List<Server> listServers= dbHelper.getAllServers();
 
         //start all the listeners in prefs and add the listener to the button
-//        SpinnerAdapter spinnerAdapter = new ArrayAdapter<>(
-//                getActivity(),
-//                android.R.layout.simple_list_item_1,
-//                str);
-//        protocol.setAdapter(spinnerAdapter);
-//        Button button = (Button) getActivity().findViewById(R.id.button);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(!updating) {
-//                    // save new entry
-//                    try {
-//                        Server newServer = new Server(
-//                                name.getText().toString(),URI.create(protocol.toString() +
-//                                        hostname.getText().toString() +
-//                                        port.getText().toString() +
-//                                        path.getText().toString()
-//                        ));
-//                        dbHelper.addServer(newServer);
-//                    }catch (Exception e){
-//
-//                    }
-//                }else{
-//                    //update entry
-//                    try {
-//                        if (!(name.getText().toString().equals(selectedServer.getName()))) {
-//                            dbHelper.updateServer(
-//                                    selectedServer,
-//                                    DbContract.ServerEntry.COLUMN_SERVER_TITLE,
-//                                    name.getText().toString());
-//                        }
-//                        if (!(protocol.getSelectedItemPosition() == selectedServer.getProtocol())) {
-//                            dbHelper.updateServer(
-//                                    selectedServer,
-//                                    DbContract.ServerEntry.COLUMN_SERVER_PROTOCOL,
-//                                    String.valueOf(protocol.getSelectedItemId()));
-//                        }
-//                        if (!(hostname.getText().toString().equals(selectedServer.getHost()))) {
-//                            dbHelper.updateServer(
-//                                    selectedServer,
-//                                    DbContract.ServerEntry.COLUMN_SERVER_HOST,
-//                                    hostname.getText().toString());
-//                        }
-//                        if (!(port.getText().toString().equals(selectedServer.getHost()))) {
-//                            dbHelper.updateServer(
-//                                    selectedServer,
-//                                    DbContract.ServerEntry.COLUMN_SERVER_PORT,
-//                                    port.getText().toString());
-//                        }
-//                        if (!(path.getText().toString().equals(selectedServer.getHost()))) {
-//                            dbHelper.updateServer(
-//                                    selectedServer,
-//                                    DbContract.ServerEntry.COLUMN_SERVER_PATH,
-//                                    path.getText().toString());
-//                        }
-//                    }catch (Exception e){
-//                    }
-//                }
-//                getFragmentManager().popBackStack();
-//            }
-//        });
-//
-//        if(getArguments()!= null) {
-//            updating = true;
-//            clickPos = getArguments().getInt(CLICK_BUNDLE_POSITION_KEY);
-//            selectedServer = listServers.get(clickPos);
-//            showSelectedServerOptions(selectedServer);
-//        }
+        SpinnerAdapter spinnerAdapter = new ArrayAdapter<>(
+                getActivity(),
+                android.R.layout.simple_list_item_1,
+                str);
+        protocol.setAdapter(spinnerAdapter);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Save the preference and popBack the stack of windows
+                try {
+                    savePreferencesToDatabase();
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                getFragmentManager().popBackStack();
+            }
+        });
 
+        // if this fragment was opened for a specific server set the selected
+        // options
+        if(getArguments()!= null) {
+            updating = true;
+            clickPos = getArguments().getInt(CLICK_BUNDLE_POSITION_KEY);
+            selectedServer = listServers.get(clickPos);
+            showSelectedServerOptions(selectedServer);
+        }
+        // Close the database
+        dbHelper.close();
+
+    }
+
+    private void savePreferencesToDatabase() throws URISyntaxException {
+        // get all servers
+        DbHelper dbHelper = new DbHelper(getActivity());
+
+        // Get all of the names
+        String currentName = name.getText().toString();
+        String currentHostname = hostname.getText().toString();
+        String currentProtocol = (String) protocol.getSelectedItem();
+        String currentPort = port.getText().toString();
+        String currentPath = path.getText().toString();
+
+        // If you are updating then check every individual reading and then transform
+        // it into a URI else transform it into a URI and then create a new server
+        // entry
+        URI newURI = new URI(currentProtocol,
+                null,
+                currentHostname,
+                Integer.valueOf(currentPort),
+                currentPath,
+                null, null) ;
+        // If the newly created URI is not valid it will throw an exception
+        if (updating) {
+            dbHelper.updateServer(selectedServer,
+                    DbContract.ServerEntry.COLUMN_SERVER_TITLE,
+                    currentName);
+            dbHelper.updateServer(selectedServer,
+                    DbContract.ServerEntry.COLUMN_SERVER_URI,newURI.toASCIIString());
+        }else{
+            dbHelper.addServer(new Server(currentName,
+                    newURI));
+        }
+
+        // Close the database
+        dbHelper.close();
     }
 
     private void showSelectedServerOptions(Server selectedServer) {
         name.setText(selectedServer.getName());
-//        hostname.setText(selectedServer.getHost());
-//        protocol.setSelection(selectedServer.getProtocol());
-//        port.setText(String.valueOf(selectedServer.getPort()));
-//        path.setText(selectedServer.getPath());
+        hostname.setText(selectedServer.getUri().getHost());
+        protocol.setSelection(returnProtocolIndex(selectedServer.getUri().getScheme()));
+        port.setText(String.valueOf(selectedServer.getUri().getPort()));
+        path.setText(selectedServer.getUri().getPath());
+    }
+
+    private int returnProtocolIndex(String scheme) {
+        int i = 0;
+        for(String arrayProtocol : str){
+            if(arrayProtocol.equals(scheme))
+                return i;
+            else i++;
+        }
+        return i;
     }
 
     public void showAndSaveStackDialog(FragmentManager fragmentManager){

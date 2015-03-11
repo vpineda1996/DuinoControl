@@ -1,4 +1,4 @@
-package com.vpineda.duinocontrol.app.classes.model;
+package com.vpineda.duinocontrol.app.factories;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -10,17 +10,24 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.UUID;
 
 /**
- * Created by Victor on 2/3/2015.
+ * Created by vpineda1996 on 2015-03-10.
  */
-public class Server{
-    private UUID uuid;
-    private String name;
-    private URI uri;
+public class ServerFactory {
+    public static ServerFactory instance = null;
+
     private OnResponseListener mResponseListener;
-    AsyncHttpClient client;
+    private AsyncHttpClient client;
+
+    public static ServerFactory getInstance(){
+        if(instance == null){
+            instance = new ServerFactory();
+        }
+        return instance;
+    }
+
+    protected ServerFactory(){}
 
     /**
      * Listener (so we we can interact with the toggle once we've had a response)
@@ -31,29 +38,12 @@ public class Server{
     }
 
     /**
-     * =====================================
-     * ===========CONSTRUCTORS==============
-     * =====================================
-     */
-
-    public Server (UUID uuid, String name, URI uri){
-        this.uuid = uuid;
-        this.name = name;
-        this.uri = uri;
-    }
-    public Server (String name, URI uri){
-        this(UUID.randomUUID(), name, uri);
-    }
-
-    //TODO: send JSON HTTP request
-
-    /**
      * send a message to the server
      * @param message a message that will be sent to this server
      * @param mListener listener for the server's response
-     * @throws UnsupportedEncodingException whenever the request sent to the HttpClient is not valid
+     * @throws java.io.UnsupportedEncodingException whenever the request sent to the HttpClient is not valid
      */
-    public void sendCommand(JSONObject message, OnResponseListener mListener) throws UnsupportedEncodingException {
+    public void sendCommand(JSONObject message, OnResponseListener mListener, URI uri) throws UnsupportedEncodingException {
         if (client == null){
             client = new AsyncHttpClient();
         }
@@ -110,33 +100,4 @@ public class Server{
         });
     }
 
-    /**
-     * =====================================
-     * ========GETTERS AND SETTERS==========
-     * =====================================
-     */
-
-    public URI getUri() {
-        return uri;
-    }
-
-    public void setUri(URI uri) {
-        this.uri = uri;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
 }

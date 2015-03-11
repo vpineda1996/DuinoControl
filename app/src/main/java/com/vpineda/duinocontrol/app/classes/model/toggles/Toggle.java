@@ -1,12 +1,14 @@
 package com.vpineda.duinocontrol.app.classes.model.toggles;
 
 
+import android.app.Activity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.classes.ui.adapters.ToggleAdapter;
+import com.vpineda.duinocontrol.app.factories.ServerFactory;
 import com.vpineda.duinocontrol.app.networking.Commands;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +22,7 @@ import java.util.UUID;
 /**
  * Created by Victor on 2/3/2015.
  */
-public abstract class Toggle implements Server.OnResponseListener{
+public abstract class Toggle implements ServerFactory.OnResponseListener{
     private UUID uuid;
     private String name;
     private Server server;
@@ -59,11 +61,25 @@ public abstract class Toggle implements Server.OnResponseListener{
 
     /**
      * Set listeners for that special item toggle
+     * Every time you create a new toggle you need to call this super
+     * so the view can know that long press means show editable menu
      * @param viewHolder view holder in the RecyclerView of toggles
      * @param position position of the listener
      */
     public void setListeners(ToggleAdapter.ToggleRecycleViewViewHolder viewHolder, final int position){
-        view =viewHolder.getView();
+        view = viewHolder.getView();
+        view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showEditDeleteMenu();
+                return true;
+            }
+        });
+    }
+
+    private void showEditDeleteMenu() {
+        Activity currentActiviy = (Activity) view.getContext();
+        //TODO: show the edit or remove menu when selecting a Object
     }
 
     /**
@@ -79,7 +95,7 @@ public abstract class Toggle implements Server.OnResponseListener{
      *              where it can be -1 that means the opposite of the current value
      *              (useful for booleans)
      */
-    protected abstract void setToggleState(int state);
+    protected abstract void setCurrentToggleValue(int state);
 
     /**
      * Sends the message to the server and then returns the response from the server

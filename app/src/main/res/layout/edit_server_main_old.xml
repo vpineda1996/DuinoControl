@@ -15,8 +15,7 @@
             android:layout_marginBottom="6dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="6dp"
-            style="@style/EditTextBlueUnderline"/>
+            android:layout_marginTop="6dp"/>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -28,12 +27,12 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="6dp"
             android:id="@+id/linearLayout">
+
         <Spinner
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="4"
-                android:id="@+id/server_protocol_spinner"
-                android:hint="Protocol"/>
+                android:id="@+id/server_protocol_spinner1"/>
 
 
         <EditText
@@ -42,7 +41,6 @@
                 android:layout_weight="10"
                 android:id="@+id/server_hostname_editText"
                 android:hint="Hostname or IP"
-                style="@style/EditTextBlueUnderline"
                 android:inputType="textWebEditText"/>
     </LinearLayout>
 
@@ -64,15 +62,13 @@
                         android:id="@+id/server_path_editText"
                         android:hint="Path (ex. /post)"
                         android:lines="1"
-                        android:layout_weight="2"
-                        style="@style/EditTextBlueUnderline"/>
+                        android:layout_weight="2"/>
 
                 <EditText
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:id="@+id/server_port_editText"
                         android:inputType="number"
-                        style="@style/EditTextBlueUnderline"
                         android:hint="Port"
                         android:layout_weight="1"/>
 

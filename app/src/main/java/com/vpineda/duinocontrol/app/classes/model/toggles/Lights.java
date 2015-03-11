@@ -60,7 +60,7 @@ public class Lights extends Toggle {
         viewHolder.getView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setToggleState(-1);
+                setCurrentToggleValue(-1);
                 sendJSONMessage(Commands.DIGITAL_WRITE);
             }
         });
@@ -112,7 +112,7 @@ public class Lights extends Toggle {
      *              where it can be -1 that means the opposite of the current value
      */
     @Override
-    protected void setToggleState(int state) {
+    protected void setCurrentToggleValue(int state) {
         if (state == 0){
             value = false;
         }else if(state == -1){
