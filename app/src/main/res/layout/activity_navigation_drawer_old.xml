@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:orientation="vertical"
             android:layout_height="match_parent">
-            <include layout="@layout/toolbar"/>
+            <include layout="@layout/toolbar_old"/>
             <FrameLayout
                     android:layout_width="match_parent"
                     android:id="@+id/content_frame"
@@ -30,8 +30,8 @@
                 android:layout_width="280dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
-                app:layout="@layout/fragmnet_navigation_drawer"
-                android:name="com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment"
-                tools:layout="@layout/fragmnet_navigation_drawer"
+                app:layout="@layout/classes_ui_fragments_navigational_drawer"
+                android:name="com.vpineda.duinocontrol.app.classes.ui.fragments.NavigationalDrawerFragment"
+                tools:layout="@layout/classes_ui_fragments_navigational_drawer"
                 android:id="@+id/left_drawer"/>
 </android.support.v4.widget.DrawerLayout>

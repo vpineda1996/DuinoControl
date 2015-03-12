@@ -8,18 +8,13 @@ import android.provider.BaseColumns;
 public final class DbContract {
     public static abstract class ServerEntry implements BaseColumns {
         public static final String SERVER_TABLE_NAME = "server_table";
-
         public static final String COLUMN_SERVER_UUID = "uuid";
-        public static final String COLUMN_SERVER_PROTOCOL = "protocol";
-        public static final String COLUMN_SERVER_HOST = "host";
-        public static final String COLUMN_SERVER_PORT = "port";
         public static final String COLUMN_SERVER_TITLE = "title";
-        public static final String COLUMN_SERVER_PATH = "path";
+        public static final String COLUMN_SERVER_URI = "protocol";
     }
 
     public static abstract class RoomEntry implements BaseColumns{
         public static final String ROOM_TABLE_NAME = "room_table";
-
         public static final String COLUMN_ROOM_UUID = "uuid";
         public static final String COLUMN_ROOM_TITLE = "title";
 
@@ -27,16 +22,16 @@ public final class DbContract {
 
     public static abstract class ToggleEntry implements BaseColumns {
         public static final String TOGGLE_TABLE_NAME = "toggle_table";
-
         public static final String COLUMN_TOGGLE_UUID = "uuid";
         public static final String COLUMN_TOGGLE_TITLE = "title";
+        public static final String COLUMN_TOGGLE_PIN = "pin";
         public static final String COLUMN_TOGGLE_TYPE = "type";
         public static final String COLUMN_TOGGLE_ROOM_UUID = "room_uuid";
         public static final String COLUMN_TOGGLE_SERVER_UUID = "server_uuid";
 
     }
     private static final String TEXT_TYPE = " TEXT";
-    private static final String INTEGER_TYPE = " INTEGER";
+    private static final String INT_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
 
 
@@ -44,11 +39,8 @@ public final class DbContract {
             "CREATE TABLE " + ServerEntry.SERVER_TABLE_NAME + " (" +
                     ServerEntry._ID + " INTEGER PRIMARY KEY," +
                     ServerEntry.COLUMN_SERVER_UUID + TEXT_TYPE + COMMA_SEP +
-                    ServerEntry.COLUMN_SERVER_PROTOCOL + INTEGER_TYPE + COMMA_SEP +
-                    ServerEntry.COLUMN_SERVER_HOST + TEXT_TYPE + COMMA_SEP +
-                    ServerEntry.COLUMN_SERVER_PORT + INTEGER_TYPE + COMMA_SEP +
                     ServerEntry.COLUMN_SERVER_TITLE + TEXT_TYPE + COMMA_SEP +
-                    ServerEntry.COLUMN_SERVER_PATH + TEXT_TYPE + " )";
+                    ServerEntry.COLUMN_SERVER_URI + TEXT_TYPE + " )";
 
     public static final String SQL_CREATE_TABLE_ROOM =
             "CREATE TABLE " + RoomEntry.ROOM_TABLE_NAME + " (" +
@@ -61,6 +53,7 @@ public final class DbContract {
                     ToggleEntry._ID + " INTEGER PRIMARY KEY," +
                     ToggleEntry.COLUMN_TOGGLE_UUID + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_TITLE + TEXT_TYPE + COMMA_SEP +
+                    ToggleEntry.COLUMN_TOGGLE_PIN + INT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_TYPE + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_ROOM_UUID + TEXT_TYPE + COMMA_SEP +
                     ToggleEntry.COLUMN_TOGGLE_SERVER_UUID + TEXT_TYPE + " )";
@@ -69,5 +62,7 @@ public final class DbContract {
             "DROP TABLE IF EXISTS " + ServerEntry.SERVER_TABLE_NAME;
     public static final String SQL_DELETE_ROOM_TABLE =
             "DROP TABLE IF EXISTS " + RoomEntry.ROOM_TABLE_NAME;
+    public static final String SQL_DELETE_TOOGLE_TABLE =
+            "DROP TABLE IF EXISTS " + ToggleEntry.TOGGLE_TABLE_NAME;
 
 }

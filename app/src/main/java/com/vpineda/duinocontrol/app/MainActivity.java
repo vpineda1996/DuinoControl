@@ -8,10 +8,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import com.vpineda.duinocontrol.app.fragments.NavigationalDrawerFragment;
-import com.vpineda.duinocontrol.app.settings.EditRoomFragment;
+import com.vpineda.duinocontrol.app.classes.model.Room;
+import com.vpineda.duinocontrol.app.classes.ui.fragments.NavigationalDrawerFragment;
+import com.vpineda.duinocontrol.app.classes.ui.settings.EditToogleFragment;
 import com.vpineda.duinocontrol.app.settings.MainPreferences;
+
+import java.util.UUID;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -31,9 +33,9 @@ public class MainActivity extends ActionBarActivity {
         setToolbar();
         mDrawerLayout = (DrawerLayout) findViewById (R.id.drawer_layout);
         mDrawer = (NavigationalDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
-        mDrawer.setUp(((DrawerLayout) findViewById(R.id.drawer_layout)), mToolbar);
+        mDrawer.newInstance(((DrawerLayout) findViewById(R.id.drawer_layout)), mToolbar);
         if(savedInstanceState == null){
-            mDrawer.selectItem(0);
+            mDrawer.selectItem(-1);
         }
     }
 
@@ -48,9 +50,6 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -58,6 +57,13 @@ public class MainActivity extends ActionBarActivity {
             Intent intent = new Intent(this, MainPreferences.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.ui_activites_main_activity_add_toggleButton){
+            Room roomSelected = mDrawer.getRoomSelected();
+            if(roomSelected != null) {
+                EditToogleFragment.newInstance(roomSelected.getUuid(),null).show(getSupportFragmentManager(), "addToggle");
+            }else {
+                EditToogleFragment.newInstance(null,null).show(getSupportFragmentManager(), "addToggle");
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -68,24 +74,20 @@ public class MainActivity extends ActionBarActivity {
         // If the nav drawer is open, hide action items related to the content view
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawer.getView());
         menu.findItem(R.id.refresh_button).setVisible(!drawerOpen);
+        menu.findItem(R.id.ui_activites_main_activity_add_toggleButton).setVisible(!drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
 
     // set background color and text color
     private void setToolbar() {
-        setContentView(R.layout.activity_navigation_drawer);
+        setContentView(R.layout.activity_navigation_drawer_old);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         if (mToolbar != null) {
             setSupportActionBar(mToolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setElevation(10);
             mToolbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.app_action_bar)));
             mToolbar.setTitleTextColor(getResources().getColor(android.R.color.primary_text_dark));
         }
-    }
-
-    public void onButtonDrawerAdd(View view) {
-        EditRoomFragment dialogFragment = new EditRoomFragment();
-        dialogFragment.newInstance(mDrawer);
-        dialogFragment.show(getSupportFragmentManager(),"edit_room");
     }
 }

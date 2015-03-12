@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.vpineda.duinocontrol.app.R;
-import com.vpineda.duinocontrol.app.databases.Room;
+import com.vpineda.duinocontrol.app.classes.model.Room;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,9 +17,10 @@ import java.util.List;
  * Created by vpineda1996 on 2015-01-17.
  */
 public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.DrawerRecycleViewViewHolder> {
-
-
+    private LayoutInflater inflater;
+    List<String> data = Collections.emptyList();
     private OnItemClickListener mListener;
+
     /**
      * Interface for receiving click events from cells.
      */
@@ -28,26 +29,24 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.DrawerRecy
         public void onCreateContextMenu(ContextMenu menu);
     }
 
-    private LayoutInflater inflater;
-    List<Room> data = Collections.emptyList();
 
-    public DrawerAdapter(Context context, OnItemClickListener listener, List<Room> listOfRooms) {
+    public DrawerAdapter(Context context, OnItemClickListener listener, List<String> listOfRoomsNames) {
         inflater=LayoutInflater.from(context);
         mListener = listener;
-        this.data = listOfRooms;
+        this.data = listOfRoomsNames;
     }
 
     @Override
-    public DrawerRecycleViewViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = inflater.inflate(R.layout.recycler_view_drawer_layout,viewGroup,false);
+    public DrawerRecycleViewViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
+        View view = inflater.inflate(R.layout.recycler_view_drawer_layout_old,viewGroup,false);
         DrawerRecycleViewViewHolder holder = new DrawerRecycleViewViewHolder(view);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(DrawerRecycleViewViewHolder viewHolder, final int i) {
-        Room current = data.get(i);
-        viewHolder.title.setText(current.getName());
+        final String current = data.get(i);
+        viewHolder.title.setText(current);
         //Set listners for clicking
         viewHolder.getmView().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,8 +63,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.DrawerRecy
 
     }
 
-    public void updateData(List<Room> rooms) {
-        this.data = rooms;
+    public void updateData(List<String> roomNames) {
+        this.data = roomNames;
     }
 
     @Override
