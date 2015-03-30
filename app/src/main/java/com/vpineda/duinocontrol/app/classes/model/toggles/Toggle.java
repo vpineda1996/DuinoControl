@@ -2,10 +2,11 @@ package com.vpineda.duinocontrol.app.classes.model.toggles;
 
 
 import android.app.Activity;
+import android.graphics.drawable.Animatable;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
+import android.widget.Toolbar;
+import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.classes.ui.adapters.ToggleAdapter;
 import com.vpineda.duinocontrol.app.factories.ServerFactory;
@@ -66,20 +67,8 @@ public abstract class Toggle implements ServerFactory.OnResponseListener{
      * @param viewHolder view holder in the RecyclerView of toggles
      * @param position position of the listener
      */
-    public void setListeners(ToggleAdapter.ToggleRecycleViewViewHolder viewHolder, final int position){
+    public void setListeners(final ToggleAdapter.ToggleRecycleViewViewHolder viewHolder, final int position){
         view = viewHolder.getView();
-        view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showEditDeleteMenu();
-                return true;
-            }
-        });
-    }
-
-    private void showEditDeleteMenu() {
-        Activity currentActiviy = (Activity) view.getContext();
-        //TODO: show the edit or remove menu when selecting a Object
     }
 
     /**
