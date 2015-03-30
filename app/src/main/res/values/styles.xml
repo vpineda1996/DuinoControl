@@ -11,12 +11,12 @@
     </style>
 
     <style name="RedActionBarTheme"
-           parent="@style/Theme.AppCompat.Light">
+           parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/RedActionBar</item>
+        <item name="actionBarStyle">@style/BlueActionBar</item>
     </style>
 
-    <style name="RedActionBar"
+    <style name="BlueActionBar"
            parent="Widget.AppCompat.ActionBar">
         <!-- Support library compatibility -->
         <item name="titleTextStyle">@style/RedActionBarText</item>
@@ -29,8 +29,7 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
-    <style name="TransparentStatusBarTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
-
+    <style name="TransparentStatusBarTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
     </style>
-
 </resources>

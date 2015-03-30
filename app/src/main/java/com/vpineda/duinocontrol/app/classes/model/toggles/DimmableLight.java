@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Server;
 import com.vpineda.duinocontrol.app.classes.ui.adapters.ToggleAdapter;
@@ -19,7 +20,7 @@ import java.util.UUID;
  */
 public class DimmableLight extends Toggle {
     private SeekBar mSeekBar;
-
+    private TextView mNameTextView;
     private int currentToggleValue = 0;
     private boolean haveRecievedServerResponse = true;
 
@@ -36,13 +37,15 @@ public class DimmableLight extends Toggle {
      * Inflates the view and assigns the respective views to the elements in the view
      * @param viewGroup view group of the RecyclerView
      * @param inflater inflater to inflate the xml file
-     * @return
+     * @return the inflated view
      */
     @Override
     public View getInflatedView(ViewGroup viewGroup, LayoutInflater inflater) {
         View v = inflater.inflate(R.layout.classes_model_toggles_dimmable_lights,viewGroup,false);
         // Link all of the elements in the view to the code
         mSeekBar = (SeekBar) v.findViewById(R.id.toggles_dimmable_lights_card_view_seek_bar);
+        mNameTextView = (TextView) v.findViewById(R.id.toggles_dimmable_lights_card_view_text_view);
+        mNameTextView.setText(getName());
         return v;
     }
 
@@ -113,6 +116,7 @@ public class DimmableLight extends Toggle {
     @Override
     protected void setCurrentToggleValue(int state) {
         currentToggleValue = state;
+        getToggleView().invalidate();
     }
 
     @Override

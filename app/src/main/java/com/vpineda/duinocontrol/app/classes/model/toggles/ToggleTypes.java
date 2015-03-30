@@ -17,7 +17,8 @@ import java.util.UUID;
  */
 public enum ToggleTypes {
     LIGHTS ("Lights"),
-    DIMMABLE_LED ("Dimmable LED (PWM)");
+    DIMMABLE_LED ("Dimmable LED (PWM)"),
+    PWM("Servo");
 
     private String name;
     ToggleTypes(String name){
@@ -40,6 +41,8 @@ public enum ToggleTypes {
                 return new Lights(uuid,name, pin,server,roomUUID);
             case DIMMABLE_LED:
                 return new DimmableLight(uuid, name, pin, server, roomUUID);
+            case PWM:
+                return new Servo(uuid, name, pin, server, roomUUID);
         }
         return null;
     }

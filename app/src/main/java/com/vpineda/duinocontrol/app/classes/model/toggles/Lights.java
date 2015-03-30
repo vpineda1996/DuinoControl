@@ -4,6 +4,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.vpineda.duinocontrol.app.R;
 import com.vpineda.duinocontrol.app.classes.model.Server;
@@ -20,6 +22,8 @@ import java.util.UUID;
  */
 public class Lights extends Toggle {
     private boolean value = false;
+    private TextView mNameTextView;
+    private ImageView mImageView;
 
     /**
      * =====================================
@@ -44,7 +48,12 @@ public class Lights extends Toggle {
     @Override
     public View getInflatedView(ViewGroup viewGroup, LayoutInflater inflater) {
         //TODO: Maybe create a preference where we can modify the height, color, etc of this view
-        return inflater.inflate(R.layout.classes_model_toggles_lights,viewGroup,false);
+        View v = inflater.inflate(R.layout.classes_model_toggles_lights,viewGroup,false);
+        // Get the elements of the view
+        mNameTextView = (TextView) v.findViewById(R.id.classes_model_toggles_lights_text_view);
+        mImageView = (ImageView) v.findViewById(R.id.classes_model_toggles_lights_image_view);
+        mNameTextView.setText(getName());
+        return v;
     }
 
     /**
@@ -70,9 +79,10 @@ public class Lights extends Toggle {
     public void onServerResponseSuccess(JSONObject response) {
         Toast.makeText(getToggleView().getContext(),response.toString(),Toast.LENGTH_SHORT).show();
         if (value)
-            getToggleView().setBackgroundColor(getToggleView().getResources().getColor(R.color.cardview_dark_background));
+            mImageView.setImageResource(R.drawable.light_bulb_on);
         else
-            getToggleView().setBackgroundColor(getToggleView().getResources().getColor(R.color.cardview_light_background));
+            mImageView.setImageResource(R.drawable.light_bulb_off);
+        mImageView.invalidate();
     }
 
     @Override

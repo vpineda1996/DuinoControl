@@ -2,10 +2,10 @@
 <resources>
     <style name="RedActionBarTheme" parent="Theme.AppCompat.Light">
         <item name="android:colorPrimaryDark">@android:color/holo_blue_dark</item>
-        <item name="android:actionBarStyle">@style/RedActionBar</item>
+        <item name="android:actionBarStyle">@style/BlueActionBar</item>
 
         <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/RedActionBar</item>
+        <item name="actionBarStyle">@style/BlueActionBar</item>
     </style>
 
     <style name="TransparentStatusBarTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
